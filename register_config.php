@@ -35,7 +35,7 @@
 			echo "Parameter " . $PARAMETERS[$i] . " is missing.<br/>";
 		}else if($i == count($PARAMETERS)-1 && $is_complete_request){
 			header('Content-type: application/json');
-			echo json_encode(registerConfig($_REQUEST,$CONFIG_FILE_PATH,$CONFIG_FILE_NAME));
+			echo json_encode(registerConfig($_REQUEST));
 		}
 	}
 
@@ -52,19 +52,25 @@
 	    $PARAMETERS["cssURL"] = $cssURL;
 	}
 
-	function registerConfig($params,$path,$file_name){
-		if (!is_dir($path)){
-			// dir doesn't exist, make it
-			$old_umask = umask(0);
-			mkdir($path);
-			umask($old_umask);
+	function registerConfig($params){
+		$mysqli = mysqli_connect('localhost',$DB_USER,$DB_PASS);
+		if (!$mysqli){
+		  die('Could not connect: ' . mysqli_connect_error());
 		}
-		if(is_dir($path)){
-			file_put_contents($path.$file_name, serialize($params));
-			$re_read_params = unserialize(file_get_contents($path.$file_name));
-			return $re_read_params;
+		if (!$mysqli->set_charset('utf8')) {
+		    printf("Error loading character set utf8: %s\n", $mysqli->error);
+		}
+		$db = mysqli_select_db($mysqli, $DB_DATABASE_NAME);
+		$serialized_params = serialize($params);
+		$query = "INSERT INTO $DB_TABLE_SESSION_CONFIG 
+					(seriaized_params)
+					VALUES ('$serialized_params')";
+		$results = mysqli_query($mysqli, $query);
+		$success = mysqli_affected_rows($mysqli);
+		if($success == 1){
+			return $params;
 		}else{
-			return "The server was unable to create the folder. Please check if permissions are properly set up.";
+			return false;
 		}
 	}
 ?>
