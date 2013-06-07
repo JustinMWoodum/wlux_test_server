@@ -18,6 +18,6 @@
 	$DB_PASS = "WeCantDecide2";
 	$DB_DATABASE_NAME = "db_test";
 	$DB_TABLE_TRANSACTION_LOG = "transactions_log";
-	$DB_TABLE_SESSION_CONFIG = "SessionConfig";
+	$DB_TABLE_SESSION_CONFIG = "session_config";
 	$DB_TABLE_PARTICIPANT_LOG = "ParticipantLog";
 ?>
