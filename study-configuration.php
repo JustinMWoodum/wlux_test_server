@@ -27,6 +27,7 @@ error_reporting(E_STRICT);
 					//echo($defaults);
 				}
 				?>
+                <h1>WebLabUX Study Configuration Simulator</h1>
 					<!--
 					If a config file exists on the server this form will load with the configuration
 					already in the fields. If not then the fields will be blank
@@ -43,7 +44,7 @@ error_reporting(E_STRICT);
 					<dt>Hide Tab Text:&nbsp;<span class="hinttext">The text in the tab that hides a visible task info bar.</span></dt><dd><input id="tabHideText" type="text" name="tabHideText" value=<?php if($defaults){ print trim($defaults['tabHideText']); }?> required></dd>
 					<dt>Automaticly change Condition ID:<input type="checkbox" id="autoconditionid" name="autocondditionid" value="1">&nbsp;<span class="hinttext">Check this box to automatically change the Condition ID and CSS URL values.</span></dt>
                     </dl>
-					<input id="submitbtn" type="button" value="Submit this info to the server">				
+					<p><input id="submitbtn" type="button" value="Submit this info to the server">&nbsp;<span class="hinttext"><a href="https://github.com/rbwatson/wlux_test_server/blob/master/readme.md#study-config-data-object" target="_blank">Learn more about these fields</a></span></p>				
 			</fieldset>
 		</form>
 		<form action="upload_file.php" method="post" enctype="multipart/form-data">
