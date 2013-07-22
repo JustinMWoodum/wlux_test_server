@@ -1,11 +1,13 @@
 ##Server status
-The http://staff.washington.edu/rbwatson server has been updated to this repo as of 6/6/2013 @ 21:30pm and includes all pending pull requests.
+The production server has moved to http://wlux.uw.edu/rbwatson as of 7/21/2013. The code running on http://staff.washington.edu/rbwatson is now out of date and will be removed in the near future.
 
-The wlux_test_server code runs on http://staff.washington.edu/rbwatson and is used to test server-side code while we're experimenting with WebLabUX utilities and "plumbing." I'll make sure that what is in the master repo is also on the server.
+The wlux_test_server code runs on http://wlux.uw.edu/rbwatson and is used to test server-side code while we're experimenting with WebLabUX utilities and "plumbing." I'll make sure that what is in the master repo is also on the server.
 
-To run the demo, go to http://staff.washington.edu/rbwatson/start.php 
+To run the demo, go to http://wlux.uw.edu/rbwatson/start.php 
 
 ##Release notes
+*21 July, 2013* - Moved code to WLUX server. Started move of config functions to DB. Adopting a more consistent web-server interface for the web methods: All functions should return a json object that includes a _data_ object for sucessful calls or an _error_ object with some explanation, if not.
+
 **THIS BUILD IS NOT READY FOR RELEASE -- IT IS FOR TESTING/DEMO ONLY **
 When ready for production, the javascript needs to be compiled / minified so that it
 will download and run faster on client sites. This can be done using the google closure 
@@ -28,12 +30,12 @@ is to allow this object to be updated as necessary so, confirm these fields with
 | Data field | Description |
 |--------------|------------------------------------------------------------------| 
 | *conditionId* | the condition ID of the current session -- used by logger calls |
-| *cssURL* | The URL of the CSS to use for the current session -- This is usually a .css file on the WebLabUX server that is associated with the study. |
-| *taskBarCSS* | The URL of the CSS to use for the taskBar -- This is usually configured so the task bar affordances don't interfere with pages on the study site. |
+| *conditionCssUrl* | The URL of the CSS to use for the current session -- This is usually a .css file on the WebLabUX server that is associated with the study. (was: *cssURL*) |  
+| *taskBarCssUrl* | The URL of the CSS to use for the taskBar -- This is usually configured so the task bar affordances don't interfere with pages on the study site. (was: *taskBarCSS*) |
 | *buttonText* | the text to display on the task button. -- Usually something like "End Task" or "End study." |
-| *returnURL* | the URL to the return page in WebLabUX. -- This is typically the post-study questionnaire, but could be configured to point to the next task in a multi-task study. |
+| *returnUrl* | the URL to the return page in WebLabUX. -- This is typically the post-study questionnaire, but could be configured to point to the next task in a multi-task study. (was: *returnURL*) |
 | *taskText* | The unformatted text to display in the task bar. |
-| *taskHTML* | Formatted HTML to display in the task bar. If both this field and the *taskText* are defined, only this field will be used. |
+| *taskHtml* | Formatted HTML to display in the task bar. If both this field and the *taskText* are defined, only this field will be used. (was: *taskHTML*) |
 | *tabShowText* | Text to display in the show/hide task button when the task bar is hidden. |
 | *tabHideText* | Text to display in the show/hide task button when the taks bar is visible. |
 
