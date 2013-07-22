@@ -36,8 +36,10 @@ var WLUX = (function() {
     var LOCAL = (host.indexOf("localhost") != -1) ||
                 (host.indexOf("127.0.0.1") != -1);
 
-    var loggerURL = "http://staff.washington.edu/rbwatson/logger.php";
-    var studyDataURL = "http://staff.washington.edu/rbwatson/study_data.php";
+//    var loggerURL = "http://staff.washington.edu/rbwatson/logger.php";
+//    var studyDataURL = "http://staff.washington.edu/rbwatson/study_data.php";
+    var loggerURL = "http://wlux.uw.edu/rbwatson/logger.php";
+    var studyDataURL = "http://wlux.uw.edu/rbwatson/study_data.php";
 
     if (LOCAL) {
         loggerURL = "/server/logger.php";
@@ -91,16 +93,16 @@ var WLUX = (function() {
     function loadCSS() {
         // IE requires us to call this ie-only function
         if (document.createStyleSheet) {
-            document.createStyleSheet(study_data.cssURL);
-    		document.createStyleSheet(study_data.taskBarCSS);
+            document.createStyleSheet(study_data.conditionCssUrl);
+    		document.createStyleSheet(study_data.taskBarCssUrl);
         } else {
             var css = $wlux('<link>').attr({'rel': 'stylesheet',
                                             'type': 'text/css',
-                                            'href': study_data.cssURL});
+                                            'href': study_data.conditionCssUrl});
             $wlux('head').append(css);
             css = $wlux('<link>').attr({'rel': 'stylesheet',
                                             'type': 'text/css',
-                                            'href': study_data.taskBarCSS});
+                                            'href': study_data.taskBarCssUrl});
             $wlux('head').append(css);
         }
     }
@@ -112,7 +114,7 @@ var WLUX = (function() {
         var button = $wlux('<button>').attr({'class': 'wlux_button'})
                                       .text(study_data.buttonText);
         // Appending session id will not be necessary when server stores its own cookie/session
-        var link = $wlux('<a>').attr({'href': study_data.returnURL + "?wlux_session=" + SESSION_ID, 
+        var link = $wlux('<a>').attr({'href': study_data.returnUrl + "?wlux_session=" + SESSION_ID, 
 									  'class': 'wlux_button_link'});
 							   
 		var buttonDiv = $wlux('<div>').attr({'id': 'wlux_return',

@@ -7,24 +7,11 @@ include 'config_files.php';
 
 //$type = $_POST["type"];  // the type of action we're logging
 //$data_arr = array();
-$condition = -1;
-
 $json = $_POST["data"];
 $session = $json["wlux_session"];
+$conditionId = $json["conditionId"];
 
-// get the condition from the sessions.txt (eventually get it from a db given
-// the session id)
-$file = fopen($sessionDataFile,"r");
-while(! feof($file)) {
-    $line = fgets($file);
-    $line = explode(' ', $line);
-    if ($line[0] == $session) {
-        $condition = $line[1];
-    }
-}
-fclose($file);
-
-if ($condition != -1 && !empty($session) && !empty($json)) {
+if (!empty($conditionId) && !empty($session) && !empty($json)) {
     $data = "log_entry_time:\t".date('c')."\n";
     while (list($key, $value) = each($json)) {
         $data = $data . "\t". $key . ":\t" . $value . "\n";
@@ -33,16 +20,24 @@ if ($condition != -1 && !empty($session) && !empty($json)) {
 
     $file = $sessionLogFolder . "session" . $session . ".txt";
     $fileResult = file_put_contents($file, $data, FILE_APPEND);
-	// send success response
-	if (!headers_sent()) {
-		header('X-PHP-Response-Code: 200', true, 200);
+	
+	if ($fileResult) {
+		$response['data'] = $fileResult."bytes written to: ".$file;
+	} else {
+	 	$errData['message'] = 'Unable to log data to log file: '.$file;
+		$response['error'] = $errData;
 	}
 } else {
 	// send error response
-	if (!headers_sent()) {
-		header('X-PHP-Response-Code: 500', true, 500);
-	}
+	$errData['message'] = 'Data is not formatted correctly ';
+	$errData['params'] = $json;
+	$response['error'] = $errData;
 }
+if (!headers_sent()) {
+	header('content-type: application/json');
+	header('X-PHP-Response-Code: 200', true, 200);
+}
+print (json_encode($response));
 
 // otherwise we got an invalid request - just don't write anything to the file
 

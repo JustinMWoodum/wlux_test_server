@@ -14,7 +14,7 @@
     <h1>Test page</h1>
     <div id="div2fill">
       <p>No text, yet...</p>
-      <script type="text/javascript" src="http://staff.washington.edu/rbwatson/ping.php?jsonp=updateValue&SessionID=numberFoundInQueryString"></script>
+      <script type="text/javascript" src="http://wlux.uw.edu/rbwatson/ping.php?jsonp=updateValue&SessionID=numberFoundInQueryString"></script>
     </div>
   </body>
 </html>
