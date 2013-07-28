@@ -60,30 +60,37 @@ var WLUX = (function() {
 
     // logs page transitions.
     function logTransition(from, to, a_id, a_class) {
+		var logTime = new Date().getTime();
         // $.post is asynchronous by default, which causes problems if the
         // browser decides to follow the link before carrying out our request
         $wlux.ajaxSetup({async: false}); //
         // if undefined, use ""
         a_id = a_id || "";
         a_class = a_class || "";
-        $wlux.post(loggerURL, {"data" : {"type": "transition",
-                                         "wlux_session": SESSION_ID,
+        $wlux.post(loggerURL, {"transition" : {
+										"clientTimestamp": logTime,
+                                         "sessionId": SESSION_ID,
+										 "taskId": 1, // change this to a variable when more than 1 task is supported.
                                          "conditionId" : study_data.conditionId,
-                                         "from": from,
-                                         "to": to,
-                                         "a_class": a_class,
-                                         "a_id": a_id}
+                                         "fromUrl": from,
+                                         "toUrl": to,
+                                         "linkClass": a_class,
+                                         "linkId": a_id,
+                                         "linkTag": ""
+										 }
                               }
                   );
     }
 
     // logs page openings
     function logOpen() {
+		var openTime = new Date().getTime();
         $wlux.ajaxSetup({async: false}); // do this immediately
-        $wlux.post(loggerURL, {"data" : {"type": "open",
-                                         "wlux_session": SESSION_ID,
+        $wlux.post(loggerURL, {"open" : {"clientTimestamp": openTime,
+                                         "sessionId": SESSION_ID,
+										 "taskId": 1, // change this to a variable when more than 1 task is supported.
                                          "conditionId" : study_data.conditionId,
-                                         "location": window.location.href}
+                                         "pageUrl": window.location.href}
                               }
                   );
     }
