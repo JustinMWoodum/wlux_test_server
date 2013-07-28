@@ -44,18 +44,69 @@ The taskBarCSS file referenced in the study config data object uses the styles s
 
 ![Task bar .css styles](./TaskBarCSS.png)
 
-## Data logger data object
+## Data logger data objects
 The logger data object is defined by the structure in WLUX_Instrumentation.js and has two flavors: **open** and **transition**.
 Because these structures are defined in the code, confirm the fields as they are defined in the POST request to logger.php.
 
-| Data field | Open | Transition | Description |
-|--------------|---|---|------------------------------------------------------------------| 
-| *a_class* |  | X | The value of the **class** attribute of the link, if one is defined. |
-| *a_id*	|  | X | The value of the **id** attribute of the link, if one is defined. |
-| *conditionId* | X | X | The condition ID for the current session - received from WebLabUX in the study config data. |
-| *from* |  | X | The URL of the page that contains the link that was clicked. |
-| *to* |  | X | The URL of the link target (destination) page. |
-| *type* | X | X | The type of record being sent: **transition** or **open** |
-| *wlux_session* | X | X | The session ID for the current session - received from WebLabUX in the study config data. |
+The logger interface is supported by DB tables now and is access by sending the log data from the client page to the logger in a POST request. The request data determines the type of log entry to write.
+
+### Open log entry
+The Open log entry is used to identify when a new page is opened. It has no other context than the page was opened.
+
+
+| Data field | Description |
+|--------------|------------------------------------------------------------------| 
+| *clientTimestamp* | The JavaScript formatted timestamp taken from the client browser. |
+| *sessionId* | The session ID for the current session - received from WebLabUX in the study config data. |
+| *taskId* | the current task in the current session (currently this always 1). |
+| *conditionId* | The condition ID for the current session - received from WebLabUX in the study config data. |
+| *pageUrl* |  The URL of the page that was opened. |
+
+Sample Open request data block:
+```javascript
+{
+  "open": {
+    "clientTimestamp": 1375043148,
+    "sessionId": 12345,
+    "taskId": 1,
+    "conditionId": 2,
+    "pageUrl": "http://students.washington.edu/rbwatson/hearts.html"
+  }
+}
+```
+
+
+
+### Transition log entry
+A transition log entry is used to log when a link is clicked that will navigate to another location (either within the page or in another page).
+
+| Data field | Description |
+|--------------|------------------------------------------------------------------| 
+| *clientTimestamp* | The JavaScript formatted timestamp taken from the client browser. |
+| *sessionId* | The session ID for the current session - received from WebLabUX in the study config data. |
+| *taskId* | the current task in the current session (currently this always 1). |
+| *conditionId* | The condition ID for the current session - received from WebLabUX in the study config data. |
+| *fromUrl* |  The URL of the page that contains the link that was clicked. |
+| *toUrl* |  The URL of the link target (destination) page. |
+| *linkClass* |  The value of the **class** attribute of the link, if one is defined. |
+| *linkId*   |  The value of the **id** attribute of the link, if one is defined. |
+| *linkTag* | Reserved. |
+
+Sample Transition request data block:
+```javascript
+{
+  "transition": {
+    "clientTimestamp": 1375043148,
+    "sessionId": 12345,
+    "taskId": 1,
+    "conditionId": 2,
+    "fromUrl": "http://students.washington.edu/rbwatson/hearts.html",
+    "toUrl": "http://students.washington.edu/rbwatson/spades.html",
+    "linkClass": "a_class",
+    "linkId": "a_Id",
+    "linkTag": "a"
+  }
+}
+```
 
 
