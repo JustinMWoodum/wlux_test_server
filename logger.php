@@ -46,7 +46,7 @@ if (!$link) {
 				$errData['message'] = 'Log type not recognized. Log type must be \'open\' or \'transition\'';
 				$errData['postData'] = $postData;
 				$errData['getData'] = $_GET;
-				$errData['globals'] = $GLOBALS;
+				//$errData['globals'] = $GLOBALS;
 				$response['error'] = $errData;
 			}
 		}

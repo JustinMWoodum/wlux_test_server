@@ -20,5 +20,6 @@
 	$DB_TABLE_OPEN_LOG = 'log_open';
 	$DB_TABLE_TRANSITION_LOG = 'log_transition';
 	$DB_TABLE_SESSION_CONFIG = 'session_config';
-	$DB_TABLE_PARTICIPANT_LOG = 'participant_log';
+	$DB_TABLE_STUDY_CONFIG = 'study_config';
+	$DB_TABLE_SESSION_LOG = 'session_log';
 ?>

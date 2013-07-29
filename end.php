@@ -12,7 +12,7 @@
     <body>
         <h2>WebLabUX Survey</h2>
         <p>Thank you for taking part in our survey!!</p>
-        <p><a href="<?=$file?>" target="_blank">View the data collected from this study in a new window</a></p>
+        <!-- <p><a href="<?=$file?>" target="_blank">View the data collected from this study in a new window</a></p> -->
         <p><a href="start.php">Start another study</a></p>
     </body>
 </html>
