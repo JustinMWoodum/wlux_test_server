@@ -111,7 +111,8 @@ CREATE TABLE IF NOT EXISTS `session_log` (
   `recordSeq` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `studyId` bigint(20) unsigned DEFAULT NULL,
   `sessionId` bigint(20) unsigned DEFAULT NULL,
-  `conditionId` bigint(20) unsigned DEFAULT NULL,
+  `taskId` int(10) unsigned NOT NULL DEFAULT '0',
+  `conditionId` int(10) unsigned NOT NULL DEFAULT '0',
   `startTime` datetime DEFAULT NULL,
   `endTime` datetime DEFAULT NULL,
   PRIMARY KEY (`recordSeq`)
@@ -133,7 +134,7 @@ CREATE TABLE IF NOT EXISTS `study_config` (
   `recordSeq` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'record Id used by MySQL',
   `studyId` bigint(20) unsigned DEFAULT NULL COMMENT 'Study ID (optional)',
   `sessionId` bigint(20) unsigned DEFAULT NULL COMMENT 'Session ID (optional)',
-  `taskId` int(10) unsigned DEFAULT '0',
+  `taskId` int(10) unsigned NOT NULL DEFAULT '0',
   `conditionId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Test condition ID',
   `conditionCssUrl` varchar(1024) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'URL of CSS that corresponds to this condition',
   `taskBarCssUrl` varchar(1024) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'CSS to style task bar',
