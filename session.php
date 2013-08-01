@@ -104,7 +104,7 @@ if (!$link) {
 		}
 	} else {
 		// check for a POST request
-		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+		if ($_SERVER['REQUEST_METHOD'] == 'POST') {			
 			// determine log type from variable name
 	//		$respDbg['globals'] = $GLOBALS;
 			$respDbg['argData'] = $postData;
@@ -114,7 +114,7 @@ if (!$link) {
 			$logData = $postData[$action];
 
 			if (!empty($logData)) {
-				// start a new session and return a start response
+				// start a new task and return a start response
 				// get the number of conditions to pick from
 				$numConditions = 0;
 				$query = "SELECT COUNT(studyId) AS conditionCount FROM ".$DB_TABLE_STUDY_CONFIG." WHERE studyId = ".$logData['studyId']; 
@@ -148,13 +148,33 @@ if (!$link) {
 					$sessionId = time();
 					$startTimeText = date('Y-m-d H:i:s', $sessionId);
 					$thisStudySession = NULL;
+					$thisTask = 0; //  the first task a session starts with is task 0
 					// create a new session_log record 
-					$query = 'INSERT INTO '.$DB_TABLE_SESSION_LOG.' (recordSeq, studyId, sessionId, conditionId, startTime, endTime) VALUES '. 
-						'(NULL, \''.$logData['studyId'].'\', \''.$sessionId.'\', \''.$thisCondtion.'\', \''.$startTimeText.'\', NULL)';
+					$query = 'INSERT INTO '.$DB_TABLE_SESSION_LOG.' (recordSeq, studyId, sessionId, taskId, conditionId, startTime, endTime) VALUES '. 
+						'(NULL, \''.$logData['studyId'].'\', \''.$sessionId.'\', \''.$thisTask.'\', \''.$thisCondtion.'\', \''.$startTimeText.'\', NULL)';
 					$result = mysqli_query ($link, $query);
+					if (!$result) {
+						// SQL ERROR
+						$localErr = '';
+						$localErr['sqlQuery'] = $query;
+						$localErr['result'] = 'Error creating new session_log record';
+						$localErr['sqlError'] =  mysqli_sqlstate($link);
+						$localErr['message'] = mysqli_error($link);
+						$errData['insert1'] = $localErr;
+					} else {
+						// format start response buffer
+						$sessionBuff['studyId'] = $logData['studyId'];
+						$sessionBuff['sessionId'] = $sessionId;
+						$sessionBuff['conditionId'] = $thisCondtion;
+						$sessionBuff['startTime'] = $startTimeText;
+						$response['data'] = $sessionBuff;
+					}						
+
+/*
 					if ($result) {				
-						// read conifguration for this study and condition
-						$query = 'SELECT * FROM '.$DB_TABLE_STUDY_CONFIG.' WHERE studyId = '.$logData['studyId'].' AND conditionId = '.$thisCondtion; 				
+						// read conifguration for this study and condition and task
+						$query = 'SELECT * FROM '.$DB_TABLE_STUDY_CONFIG.
+							' WHERE studyId = '.$logData['studyId'].' AND taskId = '.$thisTask.' AND conditionId = '.$thisCondtion; 				
 						$result = mysqli_query ($link, $query);
 						if (mysqli_num_rows($result) == 1) {
 							if ($thisRecord = mysqli_fetch_assoc($result))  {
@@ -162,7 +182,7 @@ if (!$link) {
 							} else {
 								$localErr = '';
 								$localErr['sqlQuery'] = $query;
-								$localErr['result'] = 'Error reading condition count record';
+								$localErr['result'] = 'Error reading new session log record';
 								$localErr['dataRecord'] = $thisRecord;
 								$localErr['sqlError'] =  mysqli_sqlstate($link);
 								$localErr['message'] = mysqli_error($link);
@@ -197,11 +217,12 @@ if (!$link) {
 							$qResult = mysqli_query($link, $queryString);
 							if (!$qResult) {
 								// SQL ERROR
-								$respData['sqlQuery'] = $query_string;
-								$respData['result'] = 'Error creating session_config record';
-								$respData['sqlError'] =  mysqli_sqlstate($link);
-								$respData['message'] = mysqli_error($link);
-								$response['error'] = $respData;			
+								$localErr = '';
+								$localErr['sqlQuery'] = $query_string;
+								$localErr['result'] = 'Error creating session_config record';
+								$localErr['sqlError'] =  mysqli_sqlstate($link);
+								$localErr['message'] = mysqli_error($link);
+								$errData['insert1'] = $localErr;
 							} else {
 								// format start response buffer
 								$sessionBuff['studyId'] = $logData['studyId'];
@@ -219,7 +240,7 @@ if (!$link) {
 						$localErr['message'] = mysqli_error($link);
 						$errData['update1'] = $localErr;
 					}			
-				}
+*/				}
 			} else {
 				// see if this is a finish request
 				$action = 'finish';
@@ -232,10 +253,11 @@ if (!$link) {
 					// TODO: Need to check to see if this has been closed, already.
 					//   if so, return an error, otherwise, update the record.
 					
-					// create a new session_log record 
+					// close the task 0 record for this session
 					$query = 'UPDATE '.$DB_TABLE_SESSION_LOG.
 							 ' SET endTime = "'.$finishTimeText.
-							 '" WHERE sessionId = '.$logData['sessionId'];
+							 '" WHERE sessionId = '.$logData['sessionId'].
+							 ' AND taskId = 0';
 					$result = mysqli_query ($link, $query);
 					// $response['debug']['query'] = $query;
 					// $response['debug']['result'] = $result;						
@@ -249,21 +271,22 @@ if (!$link) {
 						$localErr['sqlError'] =  mysqli_sqlstate($link);
 						$localErr['message'] = mysqli_error($link);
 						$errData['update1'] = $localErr;
-						$response['error'] = $errData;
 					}			
 				} else {
 					// unrecognized command
-					$errData['message'] = 'Action is not recognized. Action must be \'config\', \'start\', or \'finish\'';
-					$errData['postData'] = $postData;
-					$errData['getData'] = $_GET;
+					$localErr = '';
+					$localErr['message'] = 'Action is not recognized. Action must be \'config\', \'start\', or \'finish\'';
+					$localErr['postData'] = $postData;
+					$localErr['getData'] = $_GET;
 					// $errData['globals'] = $GLOBALS;
-					$response['error'] = $errData;
+					$errData['command'] = $localErr;
 				}
 			}
 		} else {
+			$localErr = '';
 			// method not supported
-			$errData['message'] = 'HTTP method not recognized. Method must be \'GET\'';
-			$response['error'] = $errData;
+			$localErr['message'] = 'HTTP method not recognized. Method must be \'GET\' or \'POST\'';
+			$errData['method'] = $localErr;
 		}
 	}
 	mysqli_close($link);
@@ -273,5 +296,9 @@ if (!headers_sent()) {
 	header('content-type: application/json');
 	header('X-PHP-Response-Code: 200', true, 200);
 }
+if (!empty($errData)) {
+	$response['error'] = $errData;
+}
+
 print (json_encode($response));
 ?>
