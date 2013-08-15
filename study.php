@@ -15,7 +15,9 @@ if (!$link) {
 } else {
 	if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 		// get the request data
-		$postData = json_decode($HTTP_RAW_POST_DATA,true);
+		if (!empty($HTTP_RAW_POST_DATA)) {
+			$postData = json_decode($HTTP_RAW_POST_DATA,true);
+		}
 		
 		// if the data is not in the raw post data, try the post form
 		if (empty($postData)) {

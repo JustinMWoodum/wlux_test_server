@@ -111,7 +111,9 @@ if (!$link) {
 			$response['debug'] = $respDbg;	
 	
 			$action = 'start';
-			$logData = $postData[$action];
+			if (!empty($postData[$action])) {
+				$logData = $postData[$action];
+			}
 
 			if (!empty($logData)) {
 				// start a new task and return a start response
