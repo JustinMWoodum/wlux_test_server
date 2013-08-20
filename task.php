@@ -45,9 +45,9 @@ if (!$link) {
 			$response['debug'] = $respDbg;	
 	
 			$action = 'start';
-			$logData = $postData[$action];
+			if (!empty($postData[$action])) {			
+				$logData = $postData[$action];
 
-			if (!empty($logData)) {
 				// TODO: need to do some parameter validation here..
 
 				// get the current task
@@ -90,8 +90,8 @@ if (!$link) {
 				if (mysqli_num_rows($result) > 0 ) {
 					if ($thisRecord = mysqli_fetch_assoc($result))  {
 						$studyConfigRecord = $thisRecord;
-						$numTasks = $thisRecord['taskId'];
-						//$response['debug']['configData'] = $studyConfigRecord;
+						$maxTask = $thisRecord['taskId'];
+						// $response['debug']['configData'] = $studyConfigRecord;
 					} else {
 						$localErr = '';
 						$localErr['sqlQuery'] = $query;
@@ -110,11 +110,20 @@ if (!$link) {
 					$errData['query2'] = $localErr;
 				}
 				
-				//$response['debug']['rawData']['numTasks'] = $numTasks;
+				//$response['debug']['rawData']['numTasks'] = $maxTask;
 				//$response['debug']['rawData']['currentTask'] = $currentTask;
-
+				
+				// here we have the current task and the current session info
+				//  if there is no task, start the first one
+				//  if there's an open task, finish it and start the next one
+				
+				$closeLast = false;
 				if (!empty($studyConfigRecord) && !empty($studySessionRecord)) {
-					if ($currentTask < $numTasks) {
+					if ($currentTask >= $maxTask) {
+						$closeLast = true;
+						$finishTime = time();
+						$errData['lastTask'] = 'Task '.$currentTask.' is the last task in this study.';	
+					} else {
 						$currentTask = $currentTask + 1;
 						// start a new task and return a start response
 						$newTaskRecord = array();
@@ -132,13 +141,17 @@ if (!$link) {
 							isset($dbColList) ? $dbColList .= ', ' : $dbColList = '';
 							isset($dbValList) ? $dbValList .= ', ' : $dbValList = '';
 							$dbColList .= $dbCol;
-							$dbValList .= '\''.$dbVal.'\'';
+							if (empty($dbVal) && (strlen($dbVal)==0)) {
+								$dbValList .= 'NULL';
+							} else {
+								$dbValList .= '\''.$dbVal.'\'';
+							}							
 						}
 						$queryString = 'INSERT INTO '.$DB_TABLE_SESSION_LOG.' ('.$dbColList.') VALUES ('.$dbValList.')';
 						$qResult = mysqli_query($link, $queryString);
 						if (!$qResult) {
 							// SQL ERROR
-							$localErr['sqlQuery'] = $query_string;
+							$localErr['sqlQuery'] = $queryString;
 							$localErr['result'] = 'Error creating new task record in session_log';
 							$localErr['sqlError'] =  mysqli_sqlstate($link);
 							$localErr['message'] = mysqli_error($link);
@@ -151,12 +164,64 @@ if (!$link) {
 							$sessionBuff['conditionId'] = $newTaskRecord['conditionId'];
 							$sessionBuff['startTime'] = $newTaskRecord['startTime'];
 							$response['data'] = $sessionBuff;
-						}						
-					} else {
+						}
+						
+						// if new task started, create corresponding session config record
+						
+						if ($qResult) {	
+							// create a new session_cofig record for this session
+							if (!empty($studyConfigRecord)) {
+								$studyConfigRecord['recordSeq'] = NULL;
+								$studyConfigRecord['sessionId'] = $newTaskRecord['sessionId'];
+
+								// add server-generated fields to insert query
+								$dbColList = 'autoConditionId';
+								$dbValList = '0';
+																
+								// add the client-provided fields	
+								foreach ($studyConfigRecord as $dbCol => $dbVal) {
+									isset($dbColList) ? $dbColList .= ', ' : $dbColList = '';
+									isset($dbValList) ? $dbValList .= ', ' : $dbValList = '';
+									$dbColList .= $dbCol;
+									if (empty($dbVal) && (strlen($dbVal)==0)) {
+										$dbValList .= 'NULL';
+									} else {
+										$dbValList .= '\''.$dbVal.'\'';
+									}							
+								}
+								$queryString = 'INSERT INTO '.$DB_TABLE_SESSION_CONFIG.' ('.$dbColList.') VALUES ('.$dbValList.')';
+								$qResult = mysqli_query($link, $queryString);
+								if (!$qResult) {
+									// SQL ERROR
+									$localErr = '';
+									$localErr['sqlQuery'] = $query_string;
+									$localErr['result'] = 'Error creating session_config record';
+									$localErr['sqlError'] =  mysqli_sqlstate($link);
+									$localErr['message'] = mysqli_error($link);
+									$errData['insert1'] = $localErr;
+								} /* else {
+									// format start response buffer
+									$sessionBuff['studyId'] = $logData['studyId'];
+									$sessionBuff['sessionId'] = $sessionId;
+									$sessionBuff['conditionId'] = $thisCondtion;
+									$sessionBuff['startTime'] = $startTimeText;
+									$response['data'] = $sessionBuff;
+								} */						
+							}
+						} else {
+							$localErr = '';
+							$localErr['sqlQuery'] = $query;
+							$localErr['result'] = 'Error creating session_log entry';
+							$localErr['sqlError'] =  mysqli_sqlstate($link);
+							$localErr['message'] = mysqli_error($link);
+							$errData['update1'] = $localErr;
+						}								
+					} 
+					
+					if ($closeLast) {
 						// else if doing last task,
 						//   close last task, if open
 						// finish the session specified in the request
-						$finishTime = time();
 						$finishTimeText = date('Y-m-d H:i:s', $finishTime);
 						// TODO: Need to check to see if this has been closed, already.
 						//   if so, return an error, otherwise, update the record.
@@ -172,7 +237,8 @@ if (!$link) {
 						if ($result) {
 							$rData = array();
 							$errData['openTask'] = 'The previous task was not finished.';
-							$response['data'] = $rData;			
+							// no response is necessary
+							// $response['data'] = $rData;			
 						} else {
 							$localErr = '';
 							$localErr['sqlQuery'] = $query;
@@ -188,10 +254,12 @@ if (!$link) {
 				}
 			} else {
 				// see if this is a finish request
-				$action = 'finish';
-				$logData = $postData[$action];
-				$response['debug'] = $postData;
-				if (!empty($logData)) {
+				$action = 'finish';								
+				if (!empty($postData[$action])) {
+					//$response['debug'] = $postData;
+					$logData = $postData[$action];
+					// TODO: Need to test the parameters in the request
+					
 					// finish the session specified in the request
 					$finishTime = time();
 					$finishTimeText = date('Y-m-d H:i:s', $finishTime);
@@ -204,8 +272,8 @@ if (!$link) {
 							 '" WHERE sessionId = '.$logData['sessionId'].
 							 ' AND taskId = '.$logData['taskId'];
 					$result = mysqli_query ($link, $query);
-				    $response['debug']['query'] = $query;
-					$response['debug']['result'] = $result;						
+				    // $response['debug']['query'] = $query;
+					// $response['debug']['result'] = $result;						
 					if ($result) {
 						$rData = array();
 						$response['data'] = $rData;			

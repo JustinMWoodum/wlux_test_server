@@ -106,7 +106,7 @@ if (!$link) {
 		// check for a POST request
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {			
 			// determine log type from variable name
-	//		$respDbg['globals'] = $GLOBALS;
+			//	 $respDbg['globals'] = $GLOBALS;
 			$respDbg['argData'] = $postData;
 			$response['debug'] = $respDbg;	
 	
@@ -171,78 +171,7 @@ if (!$link) {
 						$sessionBuff['startTime'] = $startTimeText;
 						$response['data'] = $sessionBuff;
 					}						
-
-/*
-					if ($result) {				
-						// read conifguration for this study and condition and task
-						$query = 'SELECT * FROM '.$DB_TABLE_STUDY_CONFIG.
-							' WHERE studyId = '.$logData['studyId'].' AND taskId = '.$thisTask.' AND conditionId = '.$thisCondtion; 				
-						$result = mysqli_query ($link, $query);
-						if (mysqli_num_rows($result) == 1) {
-							if ($thisRecord = mysqli_fetch_assoc($result))  {
-								$thisStudySession = $thisRecord;
-							} else {
-								$localErr = '';
-								$localErr['sqlQuery'] = $query;
-								$localErr['result'] = 'Error reading new session log record';
-								$localErr['dataRecord'] = $thisRecord;
-								$localErr['sqlError'] =  mysqli_sqlstate($link);
-								$localErr['message'] = mysqli_error($link);
-								$errData['query2data'] = $localErr;
-							}
-						} else {
-							$localErr = '';
-							$localErr['sqlQuery'] = $query;
-							$localErr['result'] = 'Reading study config for this condition returned '.mysqli_num_rows($result). ' records';
-							$localErr['sqlError'] =  mysqli_sqlstate($link);
-							$localErr['message'] = mysqli_error($link);
-							$errData['query2'] = $localErr;
-						}
-						
-						// create a new session_cofig record for this session
-						if (!empty($thisStudySession)) {
-							$thisStudySession['recordSeq'] = "";
-							$thisStudySession['sessionId'] = $sessionId;
-							$thisStudySession['taskId'] = 1;
-							// add server-generated fields to insert query
-							$dbColList = 'autoConditionId';
-							$dbValList = '0';	
-							
-							// add the client-provided fields	
-							foreach ($thisStudySession as $dbCol => $dbVal) {
-								isset($dbColList) ? $dbColList .= ', ' : $dbColList = '';
-								isset($dbValList) ? $dbValList .= ', ' : $dbValList = '';
-								$dbColList .= $dbCol;
-								$dbValList .= '\''.$dbVal.'\'';
-							}
-							$queryString = 'INSERT INTO '.$DB_TABLE_SESSION_CONFIG.' ('.$dbColList.') VALUES ('.$dbValList.')';
-							$qResult = mysqli_query($link, $queryString);
-							if (!$qResult) {
-								// SQL ERROR
-								$localErr = '';
-								$localErr['sqlQuery'] = $query_string;
-								$localErr['result'] = 'Error creating session_config record';
-								$localErr['sqlError'] =  mysqli_sqlstate($link);
-								$localErr['message'] = mysqli_error($link);
-								$errData['insert1'] = $localErr;
-							} else {
-								// format start response buffer
-								$sessionBuff['studyId'] = $logData['studyId'];
-								$sessionBuff['sessionId'] = $sessionId;
-								$sessionBuff['conditionId'] = $thisCondtion;
-								$sessionBuff['startTime'] = $startTimeText;
-								$response['data'] = $sessionBuff;
-							}						
-						}
-					} else {
-						$localErr = '';
-						$localErr['sqlQuery'] = $query;
-						$localErr['result'] = 'Error creating session_log entry';
-						$localErr['sqlError'] =  mysqli_sqlstate($link);
-						$localErr['message'] = mysqli_error($link);
-						$errData['update1'] = $localErr;
-					}			
-*/				}
+				}
 			} else {
 				// see if this is a finish request
 				$action = 'finish';
