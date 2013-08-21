@@ -5,7 +5,9 @@ $DB_SERVER = 'localhost';
 $response = '';
 
 // get the request data
-$postData = json_decode($HTTP_RAW_POST_DATA,true);
+if (!empty($HTTP_RAW_POST_DATA)) {
+	$postData = json_decode($HTTP_RAW_POST_DATA,true);
+}
 
 // if the data is not in the raw post data, try the post form
 if (empty($postData)) {
@@ -24,30 +26,42 @@ if (!$link) {
 	//   http_response_code(500);
 	// this works on PHP > 4.3 (or so)
 	$errData['message'] = 'Can\'t connect to server: '.$DB_SERVER.' as: '.$DB_USER;
-	$response['error'] = $errData;
 } else {
 	// connected to database, check for a get request
 	if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 		// see if this is a finish request
 		$action = 'config';
-		$logData = $postData[$action];
 		if (!empty($logData)) {
+			$logData = $postData[$action];
 			// return the specified configuration
 			
 			// check the parameters
 			$thisParam = 'sessionId';
 			if (empty($logData[$thisParam]) || !is_numeric($logData[$thisParam])) {
-				$badParam[$thisParam] = "Missing or not a number";
+				if (empty($logData[$thisParam])) {
+					$badParam[$thisParam] =  "Missing";
+				} else {
+					$badParam[$thisParam] =  "Not a number";
+				}
 			}
 
 			$thisParam = 'conditionId';
 			if (empty($logData[$thisParam]) || !is_numeric($logData[$thisParam])) {
-				$badParam[$thisParam] = "Missing or not a number";
+				if (empty($logData[$thisParam])) {
+					$badParam[$thisParam] =  "Missing";
+				} else {
+					$badParam[$thisParam] =  "Not a number";
+				}
 			}
 			
 			$thisParam = 'taskId';
-			if (empty($logData[$thisParam]) || !is_numeric($logData[$thisParam])) {
-				$badParam[$thisParam] = "Missing or not a number";
+			// task 0 is legal
+			if ((empty($logData[$thisParam]) && (strlen($logData[$thisParam])==0)) || !is_numeric($logData[$thisParam])) {
+				if (empty($logData[$thisParam]) && (strlen($logData[$thisParam])==0)) {
+					$badParam[$thisParam] =  "Missing";
+				} else {
+					$badParam[$thisParam] =  "Not a number";
+				}
 			}
 			
 			if(empty($badParam)) {										
@@ -74,8 +88,7 @@ if (!$link) {
 						$localErr['dataRecord'] = $thisRecord;
 						$localErr['sqlError'] =  mysqli_sqlstate($link);
 						$localErr['message'] = mysqli_error($link);
-						$errData['queryData'] = $localErr;
-						$response['error'] = $errData;		
+						$errData['queryData'] = $localErr;		
 					}
 				} else {
 					$localErr = '';
@@ -84,23 +97,104 @@ if (!$link) {
 					$localErr['sqlError'] =  mysqli_sqlstate($link);
 					$localErr['message'] = mysqli_error($link);
 					$errData['query'] = $localErr;
-					$response['error'] = $errData;		
 				}
 			} else {
 				// bad parameter in request data
-				$errData['message'] = 'Bad parameter in request.';
-				$errData['paramError'] = $badParam;
-				$errData['request'] = $logData;
+				$localErr = '';
+				$localErr['message'] = 'Bad parameter in request.';
+				$localErr['paramError'] = $badParam;
+				$localErr['request'] = $logData;
 				// $errData['globals'] = $GLOBALS;
-				$response['error'] = $errData;		
+				$errData['validation'] =$localErr;		
 			}
-		} else {						
-			// unrecognized command
-			$errData['message'] = 'Action is not recognized. Action must be \'config\', \'start\', or \'finish\'';
-			$errData['postData'] = $postData;
-			$errData['getData'] = $_GET;
-			// $errData['globals'] = $GLOBALS;
-			$response['error'] = $errData;
+		} else {
+			$action = 'log';
+			if (!empty($postData[$action])) {
+				$logData = $postData[$action];
+				// return the task info from the log
+				
+				// check the parameters
+				$thisParam = 'sessionId';
+				if (empty($logData[$thisParam]) || !is_numeric($logData[$thisParam])) {
+					if (empty($logData[$thisParam])) {
+						$badParam[$thisParam] =  "Missing";
+					} else {
+						$badParam[$thisParam] =  "Not a number";
+					}
+				}
+	
+				$thisParam = 'conditionId';
+				if (empty($logData[$thisParam]) || !is_numeric($logData[$thisParam])) {
+					if (empty($logData[$thisParam])) {
+						$badParam[$thisParam] =  "Missing";
+					} else {
+						$badParam[$thisParam] =  "Not a number";
+					}
+				}
+				
+				$thisParam = 'taskId';
+				// task 0 is legal
+				if ((empty($logData[$thisParam]) && (strlen($logData[$thisParam])==0)) || !is_numeric($logData[$thisParam])) {
+					if (empty($logData[$thisParam]) && (strlen($logData[$thisParam])==0)) {
+						$badParam[$thisParam] =  "Missing";
+					} else {
+						$badParam[$thisParam] =  "Not a number";
+					}
+				}
+				if(empty($badParam)) {										
+					// read conifguration for this study and condition
+					$query = 'SELECT * FROM '.$DB_TABLE_SESSION_LOG.
+						' WHERE sessionId = '.$logData['sessionId'].
+						' AND conditionId = '.$logData['conditionId'].
+						' AND taskId = '.$logData['taskId'];							 	
+					$result = mysqli_query ($link, $query);
+					if (mysqli_num_rows($result) == 1) {
+						//TODO: Add support for taskId = *				
+						if ($thisRecord = mysqli_fetch_assoc($result))  {
+							// remove the recordSeq field
+							unset($thisRecord['recordSeq']);
+							$response['data'] = array_merge($thisRecord);
+							foreach ($response['data'] as $k => $v) {
+								// set "null" strings to null values
+								if ($v == 'NULL') {
+									$response['data'][$k] = NULL;
+								}
+							}
+						} else {
+							$localErr = '';
+							$localErr['sqlQuery'] = $query;
+							$localErr['result'] = 'Error reading config query';
+							$localErr['dataRecord'] = $thisRecord;
+							$localErr['sqlError'] =  mysqli_sqlstate($link);
+							$localErr['message'] = mysqli_error($link);
+							$errData['queryData'] = $localErr;
+						}
+					} else {
+						$localErr = '';
+						$localErr['sqlQuery'] = $query;
+						$localErr['result'] = 'Record matching request could not be found.';
+						$localErr['sqlError'] =  mysqli_sqlstate($link);
+						$localErr['message'] = mysqli_error($link);
+						$errData['queryData'] = $localErr;
+					}
+				} else {
+					// a bad parameter was passed
+					$localErr = '';
+					$localErr['message'] = 'Bad parameter in request.';
+					$localErr['paramError'] = $badParam;
+					$localErr['request'] = $logData;
+					// $localErr['globals'] = $GLOBALS;
+					$errData['validation'] = $localErr;		
+				}
+			} else {			
+				// unrecognized command
+				$localErr = '';
+				$localErr['message'] = 'Action is not recognized. Action must be \'config\', \'start\', or \'finish\'';
+				$localErr['postData'] = $postData;
+				$localErr['getData'] = $_GET;
+				// $errData['globals'] = $GLOBALS;
+				$errData['command'] = $localErr;
+			}
 		}
 	} else {
 		// check for a POST request
@@ -194,6 +288,8 @@ if (!$link) {
 					// $response['debug']['result'] = $result;						
 					if ($result) {
 						$rData = array();
+						$rData['sessionId'] = $logData['sessionId'];
+						$rData['finishTime'] = $finishTimeText;
 						$response['data'] = $rData;			
 					} else {
 						$localErr = '';
