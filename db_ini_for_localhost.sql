@@ -27,7 +27,7 @@ USE db_test;
 --
 
 DROP TABLE IF EXISTS `study_config`;
-CREATE TABLE IF NOT EXISTS `study_config` (
+CREATE TABLE `study_config` (
   `recordSeq` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'record Id used by MySQL',
   `studyId` bigint(20) unsigned DEFAULT NULL COMMENT 'Study ID (optional)',
   `sessionId` bigint(20) unsigned DEFAULT NULL COMMENT 'Session ID (optional)',
@@ -49,8 +49,15 @@ CREATE TABLE IF NOT EXISTS `study_config` (
 -- Dumping data for table `study_config`
 --
 
-INSERT INTO `study_config` (`recordSeq`, `studyId`, `sessionId`, `taskId`, `conditionId`, `conditionCssUrl`, `taskBarCssUrl`, `startUrl`, `returnUrl`, `buttonText`, `tabShowText`, `tabHideText`, `taskText`, `taskHtml`) VALUES
-(1, 1234, 0, 1, 1, 'css/style1.css', 'http://localhost/rbwatson/wluxTaskBar.css', 'http://students.washington.edu/rbwatson/hearts.html', 'http://localhost/rbwatson/end.php', 'End task', 'Show', 'Hide', 'This is the task to do.', 'NULL'),
-(2, 1234, 0, 1, 2, 'css/style2.css', 'http://localhost/rbwatson/wluxTaskBar.css', 'http://students.washington.edu/rbwatson/hearts.html', 'http://localhost/rbwatson/end.php', 'End task', 'Show', 'Hide', 'This is the task to do.', 'NULL'),
-(3, 1234, 0, 1, 3, 'css/style3.css', 'http://localhost/rbwatson/wluxTaskBar.css', 'http://students.washington.edu/rbwatson/hearts.html', 'http://localhost/rbwatson/end.php', 'End task', 'Show', 'Hide', 'This is the task to do.', 'NULL'),
-(4, 1234, 0, 1, 4, 'css/style4.css', 'http://localhost/rbwatson/wluxTaskBar.css', 'http://students.washington.edu/rbwatson/hearts.html', 'http://localhost/rbwatson/end.php', 'End task', 'Show', 'Hide', 'This is the task to do.', 'NULL');
+INSERT INTO `study_config` VALUES(NULL, 1234, 0, 1, 1, 'css/style1.css', 'http://wlux.uw.edu/rbwatson/wluxTaskBar.css', 'http://students.washington.edu/rbwatson/hearts.html', 'http://wlux.uw.edu/rbwatson/end.php', 'End task', 'Show', 'Hide', 'This is the first task to do.', 'NULL');
+INSERT INTO `study_config` VALUES(NULL, 1234, 0, 1, 2, 'css/style2.css', 'http://wlux.uw.edu/rbwatson/wluxTaskBar.css', 'http://students.washington.edu/rbwatson/hearts.html', 'http://wlux.uw.edu/rbwatson/end.php', 'End task', 'Show', 'Hide', 'This is the first task to do.', 'NULL');
+INSERT INTO `study_config` VALUES(NULL, 1234, 0, 1, 3, 'css/style3.css', 'http://wlux.uw.edu/rbwatson/wluxTaskBar.css', 'http://students.washington.edu/rbwatson/hearts.html', 'http://wlux.uw.edu/rbwatson/end.php', 'End task', 'Show', 'Hide', 'This is the first task to do.', 'NULL');
+INSERT INTO `study_config` VALUES(NULL, 1234, 0, 1, 4, 'css/style4.css', 'http://wlux.uw.edu/rbwatson/wluxTaskBar.css', 'http://students.washington.edu/rbwatson/hearts.html', 'http://wlux.uw.edu/rbwatson/end.php', 'End task', 'Show', 'Hide', 'This is the first task to do.', 'NULL');
+INSERT INTO `study_config` VALUES(NULL, 1234, 0, 2, 1, 'css/style1.css', 'http://wlux.uw.edu/rbwatson/wluxTaskBar.css', 'http://students.washington.edu/rbwatson/hearts.html', 'http://wlux.uw.edu/rbwatson/end.php', 'End task', 'Show', 'Hide', 'This is the second task to do.', 'NULL');
+INSERT INTO `study_config` VALUES(NULL, 1234, 0, 2, 2, 'css/style2.css', 'http://wlux.uw.edu/rbwatson/wluxTaskBar.css', 'http://students.washington.edu/rbwatson/hearts.html', 'http://wlux.uw.edu/rbwatson/end.php', 'End task', 'Show', 'Hide', 'This is the second task to do.', 'NULL');
+INSERT INTO `study_config` VALUES(NULL, 1234, 0, 2, 3, 'css/style3.css', 'http://wlux.uw.edu/rbwatson/wluxTaskBar.css', 'http://students.washington.edu/rbwatson/hearts.html', 'http://wlux.uw.edu/rbwatson/end.php', 'End task', 'Show', 'Hide', 'This is the second task to do.', 'NULL');
+INSERT INTO `study_config` VALUES(NULL, 1234, 0, 2, 4, 'css/style4.css', 'http://wlux.uw.edu/rbwatson/wluxTaskBar.css', 'http://students.washington.edu/rbwatson/hearts.html', 'http://wlux.uw.edu/rbwatson/end.php', 'End task', 'Show', 'Hide', 'This is the second task to do.', 'NULL');
+INSERT INTO `study_config` VALUES(NULL, 1234, 0, 3, 1, 'css/style1.css', 'http://wlux.uw.edu/rbwatson/wluxTaskBar.css', 'http://students.washington.edu/rbwatson/hearts.html', 'http://wlux.uw.edu/rbwatson/end.php', 'End task', 'Show', 'Hide', 'This is the third task to do.', 'NULL');
+INSERT INTO `study_config` VALUES(NULL, 1234, 0, 3, 2, 'css/style2.css', 'http://wlux.uw.edu/rbwatson/wluxTaskBar.css', 'http://students.washington.edu/rbwatson/hearts.html', 'http://wlux.uw.edu/rbwatson/end.php', 'End task', 'Show', 'Hide', 'This is the third task to do.', 'NULL');
+INSERT INTO `study_config` VALUES(NULL, 1234, 0, 3, 3, 'css/style3.css', 'http://wlux.uw.edu/rbwatson/wluxTaskBar.css', 'http://students.washington.edu/rbwatson/hearts.html', 'http://wlux.uw.edu/rbwatson/end.php', 'End task', 'Show', 'Hide', 'This is the third task to do.', 'NULL');
+INSERT INTO `study_config` VALUES(NULL, 1234, 0, 3, 4, 'css/style4.css', 'http://wlux.uw.edu/rbwatson/wluxTaskBar.css', 'http://students.washington.edu/rbwatson/hearts.html', 'http://wlux.uw.edu/rbwatson/end.php', 'End task', 'Show', 'Hide', 'This is the third task to do.', 'NULL');

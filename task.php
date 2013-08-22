@@ -57,11 +57,14 @@ if (!$link) {
 				
 				if (empty($badParam)) {
 					// no parameter errors, so start the task 
-			
+					
+					// save the finish time in case we need it to close the task later
+					$finishTime = time();
+
 					// get the current task
 					$query = 'SELECT * FROM '.$DB_TABLE_SESSION_LOG.
 						' WHERE sessionId = '.$logData['sessionId'].
-							' AND endTime IS NULL'.
+							//' AND endTime IS NULL'.
 							' ORDER BY startTime DESC LIMIT 1';
 					// currentTask = taskId
 					$result = mysqli_query ($link, $query);
@@ -87,12 +90,20 @@ if (!$link) {
 						$localErr['message'] = mysqli_error($link);
 						$errData['query1'] = $localErr;
 					}
-	
+					
+					// +++++
+					// TODO: Currently, this just gets the last task record to find out what the last task number is.
+					//  IT SHOULD: 
+					//    Get all the config records for studyId and conditionId ordered by taskId DESC
+					//    iterate through them and:
+					//      from the first record, get the max task info
+					//      from the record that matches the current task, save the conifg for the session_config table
+					// -----
 					// get the number of tasks for this study
 					$query = 'SELECT * FROM '.$DB_TABLE_STUDY_CONFIG.
 						' WHERE studyId = '.$studySessionRecord['studyId'].
 							' AND conditionId = '.$studySessionRecord['conditionId'].
-						' ORDER BY TaskId DESC LIMIT 1';
+						' ORDER BY taskId DESC LIMIT 1';
 					// currentTask = taskId
 					$result = mysqli_query ($link, $query);
 					if (mysqli_num_rows($result) > 0 ) {
@@ -129,9 +140,15 @@ if (!$link) {
 					if (!empty($studyConfigRecord) && !empty($studySessionRecord)) {
 						if ($currentTask >= $maxTask) {
 							$closeLast = true;
-							$finishTime = time();
+							$closeTask = $currentTask;
 							$errData['lastTask'] = 'Task '.$currentTask.' is the last task in this study.';	
 						} else {
+							// close the last task if it was open and this is not the first task of the study session
+							if ((is_null($studySessionRecord['endTime'])) && ($currentTask != 0)) {
+								$closeLast = true;
+								$closeTask = $currentTask;
+							}
+							// advance to next task
 							$currentTask = $currentTask + 1;
 							// start a new task and return a start response
 							$newTaskRecord = array();
@@ -248,15 +265,16 @@ if (!$link) {
 						$query = 'UPDATE '.$DB_TABLE_SESSION_LOG.
 								 ' SET endTime = "'.$finishTimeText.
 								 '" WHERE sessionId = '.$logData['sessionId'].
-								 ' AND taskId = '.$currentTask;
+								 ' AND taskId = '.$closeTask;
 						$result = mysqli_query ($link, $query);
 						// $response['debug']['query'] = $query;
 						// $response['debug']['result'] = $result;						
 						if ($result) {
-							$rData = array();
-							$errData['openTask'] = 'The previous task was not finished.';
-							// no response is necessary
-							// $response['data'] = $rData;			
+							$localErr = '';
+							$localErr['finishTime'] = $finishTimeText;
+							$localErr['taskId'] = $closeTask;
+							$localErr['message'] = 'The previous task was not finished.';
+							$errData['openTask'] = $localErr;
 						} else {
 							$localErr = '';
 							$localErr['sqlQuery'] = $query;
