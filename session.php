@@ -31,7 +31,7 @@ if (!$link) {
 	if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 		// see if this is a finish request
 		$action = 'config';
-		if (!empty($logData)) {
+		if (!empty($postData[$action])) {
 			$logData = $postData[$action];
 			// return the specified configuration
 			
@@ -45,15 +45,6 @@ if (!$link) {
 				}
 			}
 
-			$thisParam = 'conditionId';
-			if (empty($logData[$thisParam]) || !is_numeric($logData[$thisParam])) {
-				if (empty($logData[$thisParam])) {
-					$badParam[$thisParam] =  "Missing";
-				} else {
-					$badParam[$thisParam] =  "Not a number";
-				}
-			}
-			
 			$thisParam = 'taskId';
 			// task 0 is legal
 			if ((empty($logData[$thisParam]) && (strlen($logData[$thisParam])==0)) || !is_numeric($logData[$thisParam])) {
@@ -66,8 +57,8 @@ if (!$link) {
 			
 			if(empty($badParam)) {										
 				// read conifguration for this study and condition
-				$query = 'SELECT * FROM '.$DB_TABLE_SESSION_CONFIG.' WHERE sessionId = '.$logData['sessionId'].
-					' AND conditionId = '.$logData['conditionId'].
+				$query = 'SELECT * FROM '.$DB_TABLE_SESSION_CONFIG.
+				    ' WHERE sessionId = '.$logData['sessionId'].
 					' AND taskId = '.$logData['taskId'];							 	
 				$result = mysqli_query ($link, $query);
 				if (mysqli_num_rows($result) == 1) {
@@ -122,16 +113,7 @@ if (!$link) {
 						$badParam[$thisParam] =  "Not a number";
 					}
 				}
-	
-				$thisParam = 'conditionId';
-				if (empty($logData[$thisParam]) || !is_numeric($logData[$thisParam])) {
-					if (empty($logData[$thisParam])) {
-						$badParam[$thisParam] =  "Missing";
-					} else {
-						$badParam[$thisParam] =  "Not a number";
-					}
-				}
-				
+					
 				$thisParam = 'taskId';
 				// task 0 is legal
 				if ((empty($logData[$thisParam]) && (strlen($logData[$thisParam])==0)) || !is_numeric($logData[$thisParam])) {
@@ -145,7 +127,6 @@ if (!$link) {
 					// read conifguration for this study and condition
 					$query = 'SELECT * FROM '.$DB_TABLE_SESSION_LOG.
 						' WHERE sessionId = '.$logData['sessionId'].
-						' AND conditionId = '.$logData['conditionId'].
 						' AND taskId = '.$logData['taskId'];							 	
 					$result = mysqli_query ($link, $query);
 					if (mysqli_num_rows($result) == 1) {
@@ -189,7 +170,7 @@ if (!$link) {
 			} else {			
 				// unrecognized command
 				$localErr = '';
-				$localErr['message'] = 'Action is not recognized. Action must be \'config\', \'start\', or \'finish\'';
+				$localErr['message'] = 'Action is not recognized. Action must be \'config\', or \'log\'';
 				$localErr['postData'] = $postData;
 				$localErr['getData'] = $_GET;
 				// $errData['globals'] = $GLOBALS;

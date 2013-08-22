@@ -3,6 +3,7 @@ require 'config_files.php';
 
 $DB_SERVER = 'localhost';
 $response = '';
+$badParam = null;
 
 // get the request data
 if (!empty($HTTP_RAW_POST_DATA)) {
@@ -31,13 +32,71 @@ if (!$link) {
 } else {
 	// connected to database, check for a get request
 	if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-		// unrecognized command
-		$localErr = '';
-		$localErr['message'] = 'GET Method is not supported.';
-		$localErr['postData'] = $postData;
-		$localErr['getData'] = $_GET;
-		// $errData['globals'] = $GLOBALS;
-		$errData['command'] = $localErr;
+		$action = 'config';
+		if (!empty($postData[$action])) {			
+			$logData = $postData[$action];
+			// check the parameters
+			$thisParam = 'sessionId';
+			if (empty($logData[$thisParam]) || !is_numeric($logData[$thisParam])) {
+				$badParam[$thisParam] = "Missing or not a number";
+			}
+			
+			$thisParam = 'taskId';
+			if (empty($logData[$thisParam]) || !is_numeric($logData[$thisParam])) {
+				$badParam[$thisParam] = "Missing or not a number";
+			}
+			
+			if (empty($badParam)) {
+				// no parameter errors, so get task configuration record
+				$query = 'SELECT * FROM '.$DB_TABLE_SESSION_CONFIG.
+						' WHERE sessionId = '.$logData['sessionId'].
+						' AND taskId = '.$logData['taskId'];
+				$result = mysqli_query ($link, $query);
+				if (mysqli_num_rows($result) == 1 ) {
+					if ($thisRecord = mysqli_fetch_assoc($result))  {
+						// remove the recordSeq field
+						unset($thisRecord['recordSeq']);
+						$response['data'] = array_merge($thisRecord);
+						foreach ($response['data'] as $k => $v) {
+							// set "null" strings to null values
+							if ($v == 'NULL') {
+								$response['data'][$k] = NULL;
+							}
+						}
+					} else {
+						$localErr = '';
+						$localErr['sqlQuery'] = $query;
+						$localErr['result'] = 'Error reading config query';
+						$localErr['dataRecord'] = $thisRecord;
+						$localErr['sqlError'] =  mysqli_sqlstate($link);
+						$localErr['message'] = mysqli_error($link);
+						$errData['queryData'] = $localErr;		
+					}
+				} else {
+					$localErr = '';
+					$localErr['sqlQuery'] = $query;
+					$localErr['result'] = 'Reading study config returned '.mysqli_num_rows($result). ' records';
+					$localErr['sqlError'] =  mysqli_sqlstate($link);
+					$localErr['message'] = mysqli_error($link);
+					$errData['query'] = $localErr;
+				}
+			} else {
+				//bad parameter
+				$localErr = '';
+				$localErr['message'] = 'Bad parameter in start request.';
+				$localErr['paramError'] = $badParam;
+				$localErr['request'] = $logData;
+				// $errData['globals'] = $GLOBALS;
+				$errData['validation'] = $localErr;
+			}
+		} else {
+			// unrecgnized command
+			$localErr = '';
+			$localErr['message'] = 'Unrecognized command. Command must be "config" .';
+			$localErr['getData'] = $_GET;
+			// $errData['globals'] = $GLOBALS;
+			$errData['command'] = $localErr;
+		}
 	} else {
 		// check for a POST request
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {			
@@ -61,12 +120,12 @@ if (!$link) {
 					// save the finish time in case we need it to close the task later
 					$finishTime = time();
 
-					// get the current task
+					// get the current or most recent task, which is the last task entry for this session
+					//  it could be finished (endTime != NULL) or not.
 					$query = 'SELECT * FROM '.$DB_TABLE_SESSION_LOG.
 						' WHERE sessionId = '.$logData['sessionId'].
 							//' AND endTime IS NULL'.
 							' ORDER BY startTime DESC LIMIT 1';
-					// currentTask = taskId
 					$result = mysqli_query ($link, $query);
 					if (mysqli_num_rows($result) > 0) {
 						if ($thisRecord = mysqli_fetch_assoc($result))  {
@@ -97,39 +156,45 @@ if (!$link) {
 					//    Get all the config records for studyId and conditionId ordered by taskId DESC
 					//    iterate through them and:
 					//      from the first record, get the max task info
-					//      from the record that matches the current task, save the conifg for the session_config table
+					//      save all the task config records to use later
 					// -----
 					// get the number of tasks for this study
 					$query = 'SELECT * FROM '.$DB_TABLE_STUDY_CONFIG.
 						' WHERE studyId = '.$studySessionRecord['studyId'].
 							' AND conditionId = '.$studySessionRecord['conditionId'].
-						' ORDER BY taskId DESC LIMIT 1';
-					// currentTask = taskId
+						' ORDER BY taskId DESC';
 					$result = mysqli_query ($link, $query);
+					$studyConfigRecords = array();
 					if (mysqli_num_rows($result) > 0 ) {
-						if ($thisRecord = mysqli_fetch_assoc($result))  {
-							$studyConfigRecord = $thisRecord;
-							$maxTask = $thisRecord['taskId'];
-							// $response['debug']['configData'] = $studyConfigRecord;
-						} else {
-							$localErr = '';
-							$localErr['sqlQuery'] = $query;
-							$localErr['result'] = 'Error reading condition count record';
-							$localErr['dataRecord'] = $thisRecord;
-							$localErr['sqlError'] =  mysqli_sqlstate($link);
-							$localErr['message'] = mysqli_error($link);
-							$errData['query2data'] = $localErr;
+						$maxTask = 0;
+						while ($thisRecord = mysqli_fetch_assoc($result)) {
+							// from the first record, get the max task info
+							if (empty($maxTask)) {
+								$maxTask = $thisRecord['taskId'];
+							}
+							// save all the config records
+							$studyConfigRecords[$thisRecord['taskId']] = $thisRecord;
 						}
+						if (count($studyConfigRecords) != $maxTask) {							
+							$localErr = '';
+							$localErr['configRecordCount'] = count($studyConfigRecords);
+							$localErr['maxTask'] =  $maxTask;
+							$localErr['message'] = 'Task config record count mismatch. The tasks must be numbered in sequence starting with 1.';
+							$errData['taskConfig'] = $localErr;
+						}
+						// $response['debug']['studyConfig']['count'] = mysqli_num_rows($result);
 					} else {
+						// no records
 						$localErr = '';
 						$localErr['sqlQuery'] = $query;
-						$localErr['result'] = 'Error reading condition count';
+						$localErr['result'] = 'Error reading condition count record';
+						$localErr['dataRecord'] = $thisRecord;
 						$localErr['sqlError'] =  mysqli_sqlstate($link);
 						$localErr['message'] = mysqli_error($link);
-						$errData['query2'] = $localErr;
+						$errData['query2data'] = $localErr;
 					}
 					
-					//$response['debug']['rawData']['numTasks'] = $maxTask;
+					//$response['debug']['rawData']['numTasks'] = $;
 					//$response['debug']['rawData']['currentTask'] = $currentTask;
 					
 					// here we have the current task and the current session info
@@ -137,7 +202,8 @@ if (!$link) {
 					//  if there's an open task, finish it and start the next one
 					
 					$closeLast = false;
-					if (!empty($studyConfigRecord) && !empty($studySessionRecord)) {
+					if (!empty($studyConfigRecords) && !empty($studySessionRecord)) {
+						// see if the current task is the last one for the study
 						if ($currentTask >= $maxTask) {
 							$closeLast = true;
 							$closeTask = $currentTask;
@@ -172,6 +238,7 @@ if (!$link) {
 									$dbValList .= '\''.$dbVal.'\'';
 								}							
 							}
+							
 							$queryString = 'INSERT INTO '.$DB_TABLE_SESSION_LOG.' ('.$dbColList.') VALUES ('.$dbValList.')';
 							$qResult = mysqli_query($link, $queryString);
 							if (!$qResult) {
@@ -195,16 +262,17 @@ if (!$link) {
 							
 							if ($qResult) {	
 								// create a new session_cofig record for this session
-								if (!empty($studyConfigRecord)) {
-									$studyConfigRecord['recordSeq'] = NULL;
-									$studyConfigRecord['sessionId'] = $newTaskRecord['sessionId'];
+								if (!empty($studyConfigRecords)) {
+									$studyTaskConfig = $studyConfigRecords[$currentTask];
+									$studyTaskConfig['recordSeq'] = NULL;
+									$studyTaskConfig['sessionId'] = $newTaskRecord['sessionId'];
 	
 									// add server-generated fields to insert query
 									$dbColList = 'autoConditionId';
 									$dbValList = '0';
 																	
 									// add the client-provided fields	
-									foreach ($studyConfigRecord as $dbCol => $dbVal) {
+									foreach ($studyTaskConfig as $dbCol => $dbVal) {
 										isset($dbColList) ? $dbColList .= ', ' : $dbColList = '';
 										isset($dbValList) ? $dbValList .= ', ' : $dbValList = '';
 										$dbColList .= $dbCol;
@@ -243,14 +311,12 @@ if (!$link) {
 							}								
 						} 
 					} else {
-						//bad parameter 
-						$closeLast = false;
+						// record not found
 						$localErr = '';
-						$localErr['message'] = 'Bad parameter in request.';
-						$localErr['paramError'] = $badParam;
-						$localErr['request'] = $logData;
-						// $errData['globals'] = $GLOBALS;
-						$errData['validation'] = $localErr;
+						$localErr['message'] = 'Config or session log record not found';
+						$localErr['configRecord'] = $studyConfigRecords;
+						$localErr['sessionRecord'] = $studySessionRecord;
+						$errData['configOrLog'] = $localErr;
 					}
 					
 					if ($closeLast) {
@@ -284,10 +350,17 @@ if (!$link) {
 							$errData['update1'] = $localErr;
 						}			
 					}
-				//   return done buffer
 				} else {
-					// something happened up there, but it was already reported
-				}
+					//bad parameter
+					$closeLast = false;
+					$localErr = '';
+					$localErr['message'] = 'Bad parameter in start request.';
+					$localErr['paramError'] = $badParam;
+					$localErr['request'] = $logData;
+					// $errData['globals'] = $GLOBALS;
+					$errData['validation'] = $localErr;
+				} 
+				// something happened up there, but it was already reported
 			} else {
 				// see if this is a finish request
 				$action = 'finish';								
@@ -337,7 +410,7 @@ if (!$link) {
 					} else {
 						// bad parameter
 						$localErr = '';
-						$localErr['message'] = 'Bad parameter in request.';
+						$localErr['message'] = 'Bad parameter in finish request.';
 						$localErr['paramError'] = $badParam;
 						$localErr['request'] = $logData;
 						// $errData['globals'] = $GLOBALS;
