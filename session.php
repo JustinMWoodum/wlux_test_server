@@ -250,9 +250,9 @@ if (!$link) {
 			} else {
 				// see if this is a finish request
 				$action = 'finish';
-				$logData = $postData[$action];
-				$response['debug'] = $postData;
-				if (!empty($logData)) {
+				//$response['debug'] = $postData;
+				if (!empty($postData[$action])) {
+					$logData = $postData[$action];
 					// finish the session specified in the request
 					$finishTime = time();
 					$finishTimeText = date('Y-m-d H:i:s', $finishTime);
