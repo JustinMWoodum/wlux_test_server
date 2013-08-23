@@ -1,73 +1,18 @@
 -- phpMyAdmin SQL Dump
--- version 3.3.2deb1ubuntu1
+-- version 3.5.1
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jul 28, 2013 at 07:44 PM
--- Server version: 5.1.70
--- PHP Version: 5.3.2-1ubuntu4.20
+-- Generation Time: Aug 23, 2013 at 05:29 PM
+-- Server version: 5.5.25
+-- PHP Version: 5.4.4
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+SET time_zone = "+00:00";
 
 --
 -- Database: `db_test`
 --
-
--- --------------------------------------------------------
-
---
--- Table structure for table `log_open`
---
-
-DROP TABLE IF EXISTS `log_open`;
-CREATE TABLE IF NOT EXISTS `log_open` (
-  `recordSeq` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Record Id',
-  `serverTimestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'time record was added to the database',
-  `clientTimestamp` bigint(20) unsigned DEFAULT NULL COMMENT 'record date and time sent from client',
-  `sessionId` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `taskId` int(10) unsigned NOT NULL DEFAULT '0',
-  `conditionId` int(10) unsigned NOT NULL DEFAULT '0',
-  `pageUrl` varchar(1024) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'URL of page being opened.',
-  PRIMARY KEY (`recordSeq`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Dumping data for table `log_open`
---
-
-
--- --------------------------------------------------------
-
---
--- Table structure for table `log_transition`
---
-
-DROP TABLE IF EXISTS `log_transition`;
-CREATE TABLE IF NOT EXISTS `log_transition` (
-  `recordSeq` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Record Id',
-  `serverTimestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'time record was added to the database',
-  `clientTimestamp` bigint(20) DEFAULT NULL COMMENT 'record date and time sent from client',
-  `sessionId` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `taskId` int(10) unsigned NOT NULL DEFAULT '0',
-  `conditionId` int(10) unsigned NOT NULL DEFAULT '0',
-  `fromUrl` varchar(1024) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'URL of page with link',
-  `toUrl` varchar(1024) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'URL of link destination',
-  `linkClass` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'class attribute of link',
-  `linkId` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'ID attribute of link',
-  `linkTag` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'class attribute of link',
-  PRIMARY KEY (`recordSeq`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=8 ;
-
---
--- Dumping data for table `log_transition`
---
-
 
 -- --------------------------------------------------------
 
@@ -100,34 +45,6 @@ CREATE TABLE `session_config` (
   `autoConditionId` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '*test flag* to auto increment conditionId value instead of using condition set by WebLabUX',
   PRIMARY KEY (`recordSeq`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
-
---
--- Dumping data for table `session_config`
---
-
-
--- --------------------------------------------------------
-
---
--- Table structure for table `session_log`
---
-
-DROP TABLE IF EXISTS `session_log`;
-CREATE TABLE IF NOT EXISTS `session_log` (
-  `recordSeq` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `studyId` bigint(20) unsigned DEFAULT NULL,
-  `sessionId` bigint(20) unsigned DEFAULT NULL,
-  `taskId` int(10) unsigned NOT NULL DEFAULT '0',
-  `conditionId` int(10) unsigned NOT NULL DEFAULT '0',
-  `startTime` datetime DEFAULT NULL,
-  `endTime` datetime DEFAULT NULL,
-  PRIMARY KEY (`recordSeq`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
---
--- Dumping data for table `session_log`
---
-
 
 -- --------------------------------------------------------
 
