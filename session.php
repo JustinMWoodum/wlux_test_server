@@ -194,7 +194,7 @@ if (!$link) {
 				// start a new task and return a start response
 				// get the number of conditions to pick from
 				$numConditions = 0;
-				$query = "SELECT COUNT(studyId) AS conditionCount FROM ".$DB_TABLE_STUDY_CONFIG." WHERE studyId = ".$logData['studyId']; 
+				$query = "SELECT COUNT(studyId) AS conditionCount FROM ".$DB_TABLE_STUDY_CONFIG." WHERE studyId = ".$logData['studyId']. " AND taskId = 1"; 
 				$result = mysqli_query ($link, $query);
 				if (mysqli_num_rows($result) == 1) {
 					if ($thisRecord = mysqli_fetch_assoc($result))  {
