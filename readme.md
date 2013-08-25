@@ -8,7 +8,7 @@ The wlux_test_server code runs on http://wlux.uw.edu/rbwatson and is used to tes
 
 To run the demo, go to http://wlux.uw.edu/rbwatson/start.php 
 
-Documentation of the service is in the [documentation](documentation\_top.md) folder.
+Documentation of the service is in the [documentation](/documentation/_top.md) folder.
 
 ##Release notes
 *24 Aug, 2013* - Finished porting the test site to use the web-service interface, the MySQL database, and support multi-task studies. However, it's still rather brittle so please let me know if you find something that breaks.
