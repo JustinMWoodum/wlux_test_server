@@ -31,8 +31,8 @@ if (!$link) {
 		
 		// see if this is a config request
 		$action = 'config';
-		$logData = $postData[$action];
-		if (!empty($logData)) {
+		if (!empty($postData[$action])) {
+			$logData = $postData[$action];
 			// return the specified configuration
 			
 			// check the parameters
