@@ -1,11 +1,16 @@
 ##Server status
-The production server has moved to http://wlux.uw.edu/rbwatson as of 7/21/2013. The code running on http://staff.washington.edu/rbwatson is now out of date and will be removed in the near future.
+The production server has moved to http://wlux.uw.edu/rbwatson as of 7/21/2013. 
+The current code on http://wlux.uw.edu/rbwatson is current and in sync with the GitHub repo as of 8/24/2013.
+
+The code running on http://staff.washington.edu/rbwatson is now out of date and will be removed in the near future.
 
 The wlux_test_server code runs on http://wlux.uw.edu/rbwatson and is used to test server-side code while we're experimenting with WebLabUX utilities and "plumbing." I'll make sure that what is in the master repo is also on the server.
 
 To run the demo, go to http://wlux.uw.edu/rbwatson/start.php 
 
 ##Release notes
+*24 Aug, 2013* - Finished porting the test site to use the web-service interface, the MySQL database, and support multi-task studies. However, it's still rather brittle so please let me know if you find something that breaks.
+
 *21 July, 2013* - Moved code to WLUX server. Started move of config functions to DB. Adopting a more consistent web-server interface for the web methods: All functions should return a json object that includes a _data_ object for sucessful calls or an _error_ object with some explanation, if not.
 
 **THIS BUILD IS NOT READY FOR RELEASE -- IT IS FOR TESTING/DEMO ONLY **
@@ -29,6 +34,9 @@ is to allow this object to be updated as necessary so, confirm these fields with
 
 | Data field | Description |
 |--------------|------------------------------------------------------------------| 
+| *studyId* | the study for which this session is being run |
+| *sessionId* | the current test session  |
+| *taskId* | the current task |
 | *conditionId* | the condition ID of the current session -- used by logger calls |
 | *conditionCssUrl* | The URL of the CSS to use for the current session -- This is usually a .css file on the WebLabUX server that is associated with the study. (was: *cssURL*) |  
 | *taskBarCssUrl* | The URL of the CSS to use for the taskBar -- This is usually configured so the task bar affordances don't interfere with pages on the study site. (was: *taskBarCSS*) |
@@ -38,6 +46,8 @@ is to allow this object to be updated as necessary so, confirm these fields with
 | *taskHtml* | Formatted HTML to display in the task bar. If both this field and the *taskText* are defined, only this field will be used. (was: *taskHTML*) |
 | *tabShowText* | Text to display in the show/hide task button when the task bar is hidden. |
 | *tabHideText* | Text to display in the show/hide task button when the taks bar is visible. |
+
+Any other fields that might appear in the configuration data object should not be used as they might disappear without notice.
 
 ### Styles used by the taskBarCSS file
 The taskBarCSS file referenced in the study config data object uses the styles shown here to configure the task bar and  task/study end button.
@@ -51,7 +61,7 @@ Because these structures are defined in the code, confirm the fields as they are
 The logger interface is supported by DB tables now and is access by sending the log data from the client page to the logger in a POST request. The request data determines the type of log entry to write.
 
 ### Open log entry
-The Open log entry is used to identify when a new page is opened. It has no other context than the page was opened.
+The Open log entry is used to identify when a new page is opened. It has no other meaning beyond the page was opened.
 
 
 | Data field | Description |
@@ -60,7 +70,7 @@ The Open log entry is used to identify when a new page is opened. It has no othe
 | *sessionId* | The session ID for the current session - received from WebLabUX in the study config data. |
 | *taskId* | the current task in the current session (currently this always 1). |
 | *conditionId* | The condition ID for the current session - received from WebLabUX in the study config data. |
-| *pageUrl* |  The URL of the page that was opened. |
+| *fromUrl* |  The URL of the page from which the call was made (i.e the page that was just opened. |
 
 Sample Open request data block:
 ```javascript

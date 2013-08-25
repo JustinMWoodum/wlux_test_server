@@ -17,8 +17,8 @@
 	} 
 	
 	$studyId = 0;
-	if (!empty($postData['studyId'])) {
-		$studyId = $postData['studyId'];
+	if (!empty($postData['wlux_study'])) {
+		$studyId = $postData['wlux_study'];
 	}
 
 ?>
@@ -29,6 +29,7 @@
         h2 { margin-top: 1em; }
         div.container { width: 500px; margin: auto; }
         </style>
+        <title>WebLabUX Study Welcome Page</title>
 		<script src="jquery.js" type="text/javascript"></script>
 		<script type="text/javascript">
 			
@@ -52,9 +53,13 @@
 					var postResult = $j.post (sessionURL, {"start": {"studyId" : <?php echo $studyId ?>}},"json");
 					
 					postResult.done (function (response) {
-							// alert("Going to: " + nextPage);
-							$j("#sessionField").attr("value", response.data.sessionId.toString());
-							$j("#continueBtn").attr("disabled",false);
+							if (response.data !== undefined) {
+								// alert("Going to: " + nextPage);
+								$j("#sessionField").attr("value", response.data.sessionId.toString());
+								$j("#continueBtn").attr("disabled",false);
+							} else {
+								$j("#textDiv").html("<p>Study <?php echo $studyId ?> could not be found.<br/>Try again with another study ID.</p>");
+							}
 						});			
 				} else {
 					$j("#textDiv").html("<p>No study was specified</p>");
@@ -70,7 +75,6 @@
                 <p>Thank you for agreeing to participate in our survey.<br />
                 Please click on continue to begin the survey</p>
             </div>
-            <!-- <button onClick="navToFirstTask();" value="ClickMe">Click Me</button> -->
             <form id="continueButton" name="form1" method="POST" action="task-start.php">
                 <input id="sessionField" type="hidden" name="wlux_session" value="0" />
                 <input id="continueBtn" type="submit" value="continue" disabled />

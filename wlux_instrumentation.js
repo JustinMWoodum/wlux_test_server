@@ -14,6 +14,7 @@
 // avoid conflicting with jQuery on the study site (rename $ to $wlux)
 $wlux = jQuery.noConflict();
 
+
 // We're using the Javascript module pattern to avoid polluting the
 // global namespace. The only object we'll export is called WLUX, which
 // will be used to access any functions or properties we wish to make
@@ -25,7 +26,6 @@ var WLUX = (function() {
      **************************************************************/
 
     var sessIdKey = "wlux_session";
-    var condIdKey = "wlux_condition";
     var SESSION_ID = null;
     var done = false; // are we done loading wlux?
     var study_data = {};
@@ -38,12 +38,12 @@ var WLUX = (function() {
 
 //    var loggerURL = "http://staff.washington.edu/rbwatson/logger.php";
 //    var studyDataURL = "http://staff.washington.edu/rbwatson/study_data.php";
-    var loggerURL = "http://wlux.uw.edu/rbwatson/logger.php";
-    var studyDataURL = "http://wlux.uw.edu/rbwatson/study_data.php";
+    var loggerURL = "http://wlux.uw.edu/rbwatson/log.php";
+    var studyDataURL = "http://wlux.uw.edu/rbwatson/session.php";
 
     if (LOCAL) {
-        loggerURL = "/server/logger.php";
-        studyDataURL = "/server/study_data.php";
+        loggerURL = "/rbwatson/log.php";
+        studyDataURL = "/rbwatson/session.php";
     }
 
     /***************************************************************
@@ -70,7 +70,7 @@ var WLUX = (function() {
         $wlux.post(loggerURL, {"transition" : {
 										"clientTimestamp": logTime,
                                          "sessionId": SESSION_ID,
-										 "taskId": 1, // change this to a variable when more than 1 task is supported.
+										 "taskId": study_data.taskId,
                                          "conditionId" : study_data.conditionId,
                                          "fromUrl": from,
                                          "toUrl": to,
@@ -88,9 +88,9 @@ var WLUX = (function() {
         $wlux.ajaxSetup({async: false}); // do this immediately
         $wlux.post(loggerURL, {"open" : {"clientTimestamp": openTime,
                                          "sessionId": SESSION_ID,
-										 "taskId": 1, // change this to a variable when more than 1 task is supported.
+										 "taskId": study_data.taskId,
                                          "conditionId" : study_data.conditionId,
-                                         "pageUrl": window.location.href}
+                                         "fromUrl": window.location.href}
                               }
                   );
     }
@@ -120,8 +120,8 @@ var WLUX = (function() {
     function setupTaskbar() {		
         var button = $wlux('<button>').attr({'class': 'wlux_button'})
                                       .text(study_data.buttonText);
-        // Appending session id will not be necessary when server stores its own cookie/session
-        var link = $wlux('<a>').attr({'href': study_data.returnUrl + "?wlux_session=" + SESSION_ID, 
+        // TODO: Figure out how to avoid appending session/task id because the server stores its own cookie/session
+        var link = $wlux('<a>').attr({'href': study_data.returnUrl + "?wlux_session=" + SESSION_ID + "&wlux_task=" + study_data.taskId,  
 									  'class': 'wlux_button_link'});
 							   
 		var buttonDiv = $wlux('<div>').attr({'id': 'wlux_return',
@@ -272,13 +272,17 @@ var WLUX = (function() {
         // Store a cookie if session parameter was passed, cookie expires after browser is closed
         if (sessionId !== null) {
             document.cookie = "wluxSessionCookie="+sessionId+"; path=/";
-            window.location.replace(removeQsParam("wlux_session", document.URL));
+			// after saving the session and task in cookies, we can remove them from the URL
+			var newURL = document.URL;
+			newURL = removeQsParam("wlux_session", newURL);
+            window.location.replace(newURL);
         }
 
         SESSION_ID = readCookie("wluxSessionCookie");
-        if (SESSION_ID === null)
+        if (SESSION_ID === null) {
+			// alert("SESSION: " + SESSION_ID );
             return;
-
+		}
         // request the study data from the server asynchronously
         // (via JSONP to avoid the browser's same origin policy) while we're
         // waiting for the page to load
@@ -286,10 +290,9 @@ var WLUX = (function() {
             url: studyDataURL,
             type: "GET",
             dataType: "jsonp",
-            data: {"wlux_session": SESSION_ID},
+			data: {"config":{"sessionId" : SESSION_ID, "taskId" : -1}},
             success: function(data) {
                 study_data = data; // just store it locally for later use
-
                 logOpen();
                 loadCSS();
                 setupTaskbar();
@@ -299,7 +302,8 @@ var WLUX = (function() {
                 $wlux('body').css({'visibility': 'visible'});
                 done = true;
             },
-            error: function() {
+            error: function(obj,msg,err) {
+				alert ("Msg: " + msg + "; Err: " + err);
                 // error getting study data, ensure body is visible and return
                 $wlux('body').css({'visibility': 'visible'});
                 done = true;

@@ -71,8 +71,8 @@ if (!$link) {
 					$dbValList .= '\''.$dbVal.'\'';
 				}							
 			}
-			
-			$queryString = 'INSERT INTO '.$logTable.' ('.$dbColList.') VALUES ('.$dbValList.')';
+			// everything goes into the transition log
+			$queryString = 'INSERT INTO '.$DB_TABLE_TRANSITION_LOG.' ('.$dbColList.') VALUES ('.$dbValList.')';
 			$qResult = mysqli_query($link, $queryString);
 //			$respDbg['globals'] = $GLOBALS;
 			$respDbg['table'] = $logTable;
@@ -98,79 +98,86 @@ if (!$link) {
 	} else if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 		// query the database for the requested info
 		// check the parameters
+				
 		$thisParam = 'sessionId';
-		if (empty($postData[$thisParam]) || !is_numeric($postData[$thisParam])) {
-			if (empty($postData[$thisParam])) {
-				$badParam[$thisParam] =  "Missing";
-			} else {
+		$sessionId = 0;
+		if (array_key_exists($thisParam, $postData)) {
+			$sessionId = trim($postData[$thisParam]);
+			if (!is_numeric($sessionId)) {
 				$badParam[$thisParam] =  "Not a number";
 			}
-		}
-		
+		} else {
+			$badParam[$thisParam] =  "Missing";
+		}		
+
 		$thisParam = 'taskId';
-		if (empty($postData[$thisParam]) || !is_numeric($postData[$thisParam])) {
-			if (empty($postData[$thisParam])) {
-				$badParam[$thisParam] =  "Missing";
-			} else {
+		$taskId = 0;
+		if (array_key_exists($thisParam, $postData)) {
+			$taskId = trim($postData[$thisParam]);
+			if (!is_numeric($taskId)) {
 				$badParam[$thisParam] =  "Not a number";
 			}
-		}
-		
+		} else {
+			// Task ID == 0 == All tasks in the session
+			$taskId = 0;
+		}				
+//+
 		if (empty($badParam)) {
 			// no parameter errors, so get task configuration record
 			// first get the open records
-			$query = 'SELECT * FROM '.$DB_TABLE_OPEN_LOG.
-				' WHERE sessionId = '.$postData['sessionId'].
-				' AND taskId = '.$postData['taskId'].
-				' ORDER BY serverTimestamp';
-			$result = mysqli_query ($link, $query);
-			$openLogRecords = array();
-			$openLogRecordCount = 0;
-			if (mysqli_num_rows($result) > 0 ) {
-				while ($thisRecord = mysqli_fetch_assoc($result)) {
-					$openLogRecordCount = $openLogRecordCount + 1;
-					$openLogRecords[$openLogRecordCount] = $thisRecord;
-				}
+			$response['debug']['sessionId'] = $sessionId ;
+			$response['debug']['taskId'] = $taskId ;
+			
+			if ($taskId > 0) {	
+				$query = 'SELECT * FROM '.$DB_TABLE_TRANSITION_LOG.
+					' WHERE taskId = '.$taskId. 
+					' AND sessionId = '.$sessionId.
+					' ORDER BY serverTimestamp ;';
+			} else {
+				// get all tasks for this session
+				$query = 'SELECT * FROM '.$DB_TABLE_TRANSITION_LOG.
+					' WHERE sessionId = '.$sessionId.
+					' ORDER BY serverTimestamp ;';				
 			}
 			
-			$query = 'SELECT * FROM '.$DB_TABLE_TRANSITION_LOG.
-				' WHERE sessionId = '.$postData['sessionId'].
-				' AND taskId = '.$postData['taskId'].
-				' ORDER BY serverTimestamp';
-			$result = mysqli_query ($link, $query);
-			$transitionLogRecords = array();
-			$transitionLogRecordCount = 0;
-			if (mysqli_num_rows($result) > 0 ) {
-				while ($thisRecord = mysqli_fetch_assoc($result)) {
-					$transitionLogRecordCount = $openLogRecordCount + 1;
-					$transitionLogRecords[$transitionLogRecordCount] = $thisRecord;
-				}
-			}
-
-			if (!empty($openLogRecords)) {
-				$response['data']['open']['count'] = $openLogRecordCount;
-				$response['data']['open']['data'] = $openLogRecords;
-			} else {
-				$response['data']['open']['count'] = 0;
-				$response['data']['open']['data'] = null;
-			}
+			$response['debug']['query'] = $query;
 			
-			if (!empty($transitionLogRecords)) {
-				$response['data']['transition']['count'] = $transitionLogRecordCount;
-				$response['data']['transition']['data'] = $transitionLogRecords;
+			$result = mysqli_query ($link, $query);
+			if ($result) {
+				$openLogRecords = array();
+				$openLogRecordCount = 0;
+				while ($thisRecord = mysqli_fetch_assoc($result)) {
+					unset($thisRecord['recordSeq']);
+					if ($taskId > 0) {						
+						$openLogRecords[$openLogRecordCount] = array_merge($thisRecord);
+						$openLogRecordCount = $openLogRecordCount + 1;
+					} else {
+						$thisTask = $thisRecord['taskId'];
+						if (empty($openLogRecords[$thisTask])) {
+							$openLogRecords[$thisTask] = array();
+						}
+						array_push($openLogRecords[$thisTask], array_merge($thisRecord));
+					}
+				}
+				$response['data'] = $openLogRecords;
 			} else {
-				$response['data']['transition']['count'] = 0;
-				$response['data']['transition']['data'] = null;
+				// query error
+				$respData['sqlQuery'] = $query;
+				$respData['result'] = 'Error logging data to OPEN log';
+				$respData['sqlError'] =  mysqli_sqlstate($link);
+				$respData['message'] = mysqli_error($link);
+				$response['error'] = $respData;		
 			}
 		} else {
 			// bad or missing parameter
 			$localErr = '';
 			$localErr['message'] = 'Bad parameter in finish request.';
 			$localErr['paramError'] = $badParam;
-			$localErr['request'] = $logData;
+			$localErr['request'] = $postData;
 			// $errData['globals'] = $GLOBALS;
 			$errData['validation'] = $localErr;
 		}
+//-
 	} else {
 		// method not supported
 		$errData['message'] = 'HTTP method not recognized. Method must be \'GET\' or \'POST\'';
@@ -182,7 +189,7 @@ if (!headers_sent()) {
 	header('content-type: application/json');
 	header('X-PHP-Response-Code: 200', true, 200);
 }
-
+if(empty($response)) { $response['error'] = "messed up"; }
 print (json_encode($response));
 ?>
 

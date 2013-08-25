@@ -37,48 +37,82 @@ if (!$link) {
 			$logData = $postData[$action];
 			// check the parameters
 			$thisParam = 'sessionId';
-			if (empty($logData[$thisParam]) || !is_numeric($logData[$thisParam])) {
-				$badParam[$thisParam] = "Missing or not a number";
+			if (array_key_exists($thisParam, $logData)) {
+				if (!is_numeric($logData[$thisParam])) {
+					$badParam[$thisParam] =  "Not a number";
+				} else {
+					$sessionId = $logData[$thisParam];
+				}
+			} else {
+				$badParam[$thisParam] =  "Missing";
 			}
 			
 			$thisParam = 'taskId';
-			if (empty($logData[$thisParam]) || !is_numeric($logData[$thisParam])) {
-				$badParam[$thisParam] = "Missing or not a number";
+			if (array_key_exists($thisParam, $logData)) {
+				if (!is_numeric($logData[$thisParam])) {
+					$badParam[$thisParam] =  "Not a number";
+				} else {
+					$taskId = $logData[$thisParam];
+				}
+			} else {
+				// a missing taskId is OK.
+				// we'll just all tasks
+				// TODO: one of these days
+				$taskId = 0;
 			}
 			
 			if (empty($badParam)) {
 				// no parameter errors, so get task configuration record
-				$query = 'SELECT * FROM '.$DB_TABLE_SESSION_CONFIG.
-						' WHERE sessionId = '.$logData['sessionId'].
-						' AND taskId = '.$logData['taskId'];
-				$result = mysqli_query ($link, $query);
-				if (mysqli_num_rows($result) == 1 ) {
-					if ($thisRecord = mysqli_fetch_assoc($result))  {
-						// remove the recordSeq field
-						unset($thisRecord['recordSeq']);
-						$response['data'] = array_merge($thisRecord);
-						foreach ($response['data'] as $k => $v) {
-							// set "null" strings to null values
-							if ($v == 'NULL') {
-								$response['data'][$k] = NULL;
+				if ($taskId == -1) {
+					// -1 ==> get the latest task config for this session
+					$query = 'SELECT * FROM '.$DB_TABLE_SESSION_CONFIG.
+						' WHERE sessionId = '.$sessionId.
+						' ORDER BY taskId DESC LIMIT 1';
+				} else if ($taskId > 0) {
+					// get the config record by session and task
+					$query = 'SELECT * FROM '.$DB_TABLE_SESSION_CONFIG.
+						' WHERE sessionId = '.$sessionId.
+						' AND taskId = '.$taskId;
+				} else {
+					// task == 0 is not supported yet
+					// bad parameter
+					$localErr = '';
+					$localErr['message'] = 'Bad parameter in config request.';
+					$localErr['paramError']['taskId'] = "Cannot be 0";
+					$localErr['request'] = $logData;
+					// $errData['globals'] = $GLOBALS;
+					$errData['validation'] = $localErr;
+				}
+				if (!empty($query)) {
+					$result = mysqli_query ($link, $query);
+					if (mysqli_num_rows($result) == 1 ) {
+						if ($thisRecord = mysqli_fetch_assoc($result))  {
+							// remove the recordSeq field
+							unset($thisRecord['recordSeq']);
+							$response['data'] = array_merge($thisRecord);
+							foreach ($response['data'] as $k => $v) {
+								// set "null" strings to null values
+								if ($v == 'NULL') {
+									$response['data'][$k] = NULL;
+								}
 							}
+						} else {
+							$localErr = '';
+							$localErr['sqlQuery'] = $query;
+							$localErr['result'] = 'Error reading config query';
+							$localErr['dataRecord'] = $thisRecord;
+							$localErr['sqlError'] =  mysqli_sqlstate($link);
+							$localErr['message'] = mysqli_error($link);
+							$errData['queryData'] = $localErr;		
 						}
 					} else {
 						$localErr = '';
 						$localErr['sqlQuery'] = $query;
-						$localErr['result'] = 'Error reading config query';
-						$localErr['dataRecord'] = $thisRecord;
+						$localErr['result'] = 'Reading study config returned '.mysqli_num_rows($result). ' records';
 						$localErr['sqlError'] =  mysqli_sqlstate($link);
 						$localErr['message'] = mysqli_error($link);
-						$errData['queryData'] = $localErr;		
+						$errData['query'] = $localErr;
 					}
-				} else {
-					$localErr = '';
-					$localErr['sqlQuery'] = $query;
-					$localErr['result'] = 'Reading study config returned '.mysqli_num_rows($result). ' records';
-					$localErr['sqlError'] =  mysqli_sqlstate($link);
-					$localErr['message'] = mysqli_error($link);
-					$errData['query'] = $localErr;
 				}
 			} else {
 				//bad parameter
@@ -149,10 +183,8 @@ if (!$link) {
 						$localErr['message'] = mysqli_error($link);
 						$errData['query1'] = $localErr;
 					}
-					
+				
 					// +++++
-					// TODO: Currently, this just gets the last task record to find out what the last task number is.
-					//  IT SHOULD: 
 					//    Get all the config records for studyId and conditionId ordered by taskId DESC
 					//    iterate through them and:
 					//      from the first record, get the max task info
@@ -193,7 +225,7 @@ if (!$link) {
 						$localErr['message'] = mysqli_error($link);
 						$errData['query2data'] = $localErr;
 					}
-					
+				
 					//$response['debug']['rawData']['numTasks'] = $;
 					//$response['debug']['rawData']['currentTask'] = $currentTask;
 					
@@ -235,7 +267,8 @@ if (!$link) {
 								if (empty($dbVal) && (strlen($dbVal)==0)) {
 									$dbValList .= 'NULL';
 								} else {
-									$dbValList .= '\''.$dbVal.'\'';
+									$escapedString = str_replace("'","''",$dbVal);
+									$dbValList .= '\''.$escapedString.'\'';
 								}							
 							}
 							
@@ -255,6 +288,8 @@ if (!$link) {
 								$sessionBuff['taskId'] = $newTaskRecord['taskId'];
 								$sessionBuff['conditionId'] = $newTaskRecord['conditionId'];
 								$sessionBuff['startTime'] = $newTaskRecord['startTime'];
+								$sessionBuff['startPageHtml'] = "";
+								$sessionBuff['startPageNextUrl'] = "";
 								$response['data'] = $sessionBuff;
 							}
 							
@@ -274,12 +309,13 @@ if (!$link) {
 									// add the client-provided fields	
 									foreach ($studyTaskConfig as $dbCol => $dbVal) {
 										isset($dbColList) ? $dbColList .= ', ' : $dbColList = '';
-										isset($dbValList) ? $dbValList .= ', ' : $dbValList = '';
+										isset($dbValList) ? $dbValList .= ', ' : $dbValList = '';										
 										$dbColList .= $dbCol;
 										if (empty($dbVal) && (strlen($dbVal)==0)) {
 											$dbValList .= 'NULL';
 										} else {
-											$dbValList .= '\''.$dbVal.'\'';
+											$escapedString = str_replace("'","''",$dbVal);
+											$dbValList .= '\''.$escapedString.'\'';
 										}							
 									}
 									$queryString = 'INSERT INTO '.$DB_TABLE_SESSION_CONFIG.' ('.$dbColList.') VALUES ('.$dbValList.')';
@@ -287,19 +323,16 @@ if (!$link) {
 									if (!$qResult) {
 										// SQL ERROR
 										$localErr = '';
-										$localErr['sqlQuery'] = $query_string;
+										$localErr['sqlQuery'] = $queryString;
 										$localErr['result'] = 'Error creating session_config record';
 										$localErr['sqlError'] =  mysqli_sqlstate($link);
 										$localErr['message'] = mysqli_error($link);
 										$errData['insert1'] = $localErr;
-									} /* else {
-										// format start response buffer
-										$sessionBuff['studyId'] = $logData['studyId'];
-										$sessionBuff['sessionId'] = $sessionId;
-										$sessionBuff['conditionId'] = $thisCondtion;
-										$sessionBuff['startTime'] = $startTimeText;
-										$response['data'] = $sessionBuff;
-									} */						
+									} else {
+										// finish start response buffer
+										$response['data']['startPageHtml'] = $studyTaskConfig['startPageHtml'];
+										$response['data']['startPageNextUrl'] = $studyTaskConfig['startPageNextUrl'];
+									} 					
 								}
 							} else {
 								$localErr = '';
@@ -370,42 +403,105 @@ if (!$link) {
 					// TODO: Need to test the parameters in the request
 					// check the parameters
 					$thisParam = 'sessionId';
-					if (empty($logData[$thisParam]) || !is_numeric($logData[$thisParam])) {
-						$badParam[$thisParam] = "Missing or not a number";
-					}
-	
-					$thisParam = 'taskId';
-					if (empty($logData[$thisParam]) || !is_numeric($logData[$thisParam])) {
-						$badParam[$thisParam] = "Missing or not a number";
-					}
-			
-					if(empty($badParam)) {						
-						// finish the session specified in the request
-						$finishTime = time();
-						$finishTimeText = date('Y-m-d H:i:s', $finishTime);
-						// TODO: Need to check to see if this has been closed, already.
-						//   if so, return an error, otherwise, update the record.
-						
-						// close the task 0 record for this session
-						$query = 'UPDATE '.$DB_TABLE_SESSION_LOG.
-								 ' SET endTime = "'.$finishTimeText.
-								 '" WHERE sessionId = '.$logData['sessionId'].
-								 ' AND taskId = '.$logData['taskId'];
-						$result = mysqli_query ($link, $query);
-						// $response['debug']['query'] = $query;
-						// $response['debug']['result'] = $result;						
-						if ($result) {
-							$rData = array();
-							$rData['taskId'] = $logData['taskId'];
-							$rData['finishTime'] = $finishTimeText;
-							$response['data'] = $rData;			
+					if (array_key_exists($thisParam, $logData)) {
+						if (!is_numeric($logData[$thisParam])) {
+							$badParam[$thisParam] =  "Not a number";
 						} else {
+							$sessionId = $logData[$thisParam];
+						}
+					} else {
+						$badParam[$thisParam] =  "Missing";
+					}
+				
+					$thisParam = 'taskId';
+					if (array_key_exists($thisParam, $logData)) {
+						if (!is_numeric($logData[$thisParam])) {
+							$badParam[$thisParam] =  "Not a number";
+						} else {
+							$taskId = $logData[$thisParam];
+						}
+					} else {
+						// a missing taskId is OK.
+						// we'll just all tasks
+						// TODO: one of these days
+						$taskId = 0;
+					}
+				
+					if (empty($badParam)) {						
+						// get the config record for this task & session
+						
+						if ($taskId == -1) {
+							// -1 ==> get the latest task config for this session
+							$query = 'SELECT * FROM '.$DB_TABLE_SESSION_CONFIG.
+								' WHERE sessionId = '.$sessionId.
+								' ORDER BY taskId DESC LIMIT 1';
+						} else if ($taskId > 0) {
+							// get the config record by session and task
+							$query = 'SELECT * FROM '.$DB_TABLE_SESSION_CONFIG.
+								' WHERE sessionId = '.$sessionId.
+								' AND taskId = '.$taskId;
+						} else {
+							// task == 0 is not supported yet
+							// bad parameter
 							$localErr = '';
-							$localErr['sqlQuery'] = $query;
-							$localErr['result'] = 'Error finishing session_log entry';
-							$localErr['sqlError'] =  mysqli_sqlstate($link);
-							$localErr['message'] = mysqli_error($link);
-							$errData['update1'] = $localErr;
+							$localErr['message'] = 'Bad parameter in finish request.';
+							$localErr['paramError']['taskId'] = "Cannot be 0";
+							$localErr['request'] = $logData;
+							// $errData['globals'] = $GLOBALS;
+							$errData['validation'] = $localErr;
+						}
+						if (!empty($query)) {
+							$result = mysqli_query ($link, $query);
+							if (mysqli_num_rows($result) == 1 ) {
+								if ($thisTaskRecord = mysqli_fetch_assoc($result)) {
+									if ($taskId <= 0) {
+										// set the current task
+										$taskId = $thisTaskRecord['taskId'];
+										// continue
+									}
+								} else {
+									$thisTaskRecord = null;
+								}
+							} else {
+								// no records
+								$localErr = '';
+								$localErr['sqlQuery'] = $query;
+								$localErr['result'] = 'Error reading session configuration';
+								$localErr['dataRecord'] = $thisRecord;
+								$localErr['sqlError'] =  mysqli_sqlstate($link);
+								$localErr['message'] = mysqli_error($link);
+								$errData['queryConfig'] = $localErr;
+							}
+							
+							// finish the session specified in the request
+							$finishTime = time();
+							$finishTimeText = date('Y-m-d H:i:s', $finishTime);
+							// TODO: Need to check to see if this has been closed, already.
+							//   if so, return an error, otherwise, update the record.
+							//   for now, we'll just only update unfinished records.
+							$query = 'UPDATE '.$DB_TABLE_SESSION_LOG.
+									 ' SET endTime = "'.$finishTimeText.
+									 '" WHERE sessionId = '.$sessionId.
+									 ' AND endTime = NULL '.
+									 ' AND taskId = '.$taskId;
+							$result = mysqli_query ($link, $query);
+							// $response['debug']['query'] = $query;
+							// $response['debug']['result'] = $result;						
+							if ($result) {
+								$rData = array();
+								$rData['taskId'] = $taskId;
+								$rData['finishTime'] = $finishTimeText;
+								$rData['finishPageHtml'] = $thisTaskRecord['finishPageHtml'];
+								$rData['finishPageNextUrl'] = $thisTaskRecord['finishPageNextUrl'];
+								$response['data'] = $rData;			
+							} else {
+								$localErr = '';
+								$localErr['sqlQuery'] = $query;
+								$localErr['result'] = 'Error finishing session_log entry';
+								$localErr['sqlError'] =  mysqli_sqlstate($link);
+								$localErr['message'] = mysqli_error($link);
+								$errData['updateTime'] = $localErr;
+							}
 						}
 					} else {
 						// bad parameter
@@ -444,5 +540,21 @@ if (!empty($errData)) {
 	$response['error'] = $errData;
 }
 
-print (json_encode($response));
+$thisParam = "callback";
+if (array_key_exists($thisParam, $_GET)) {
+	$jsonpTag = $_GET[$thisParam]; // set by jquery ajax call when using jsonp data type
+}
+
+if (!empty($jsonpTag)) { 
+	// format and send output
+	// no error information is returned in the JSONP response!
+	$fnResponse = $jsonpTag . '(' . json_encode($response['data']) . ')';
+} else {
+	// no callback param name so return an error
+	// this line only works on PHP > 5.4.0, which not everyone seems to have.
+	//   http_response_code(500);
+	// this works on PHP > 4.3 (or so)
+	$fnResponse = json_encode($response);
+} 
+print ($fnResponse);
 ?>
