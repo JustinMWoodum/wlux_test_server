@@ -128,7 +128,7 @@ If the operation was successful, a data buffer is returned in the response.
     "data": {
         "taskId": 2,
         "finishTime": "2013-08-25 11:32:44",
-        "finishPageHtml": "<p>You just finished Task 2, Condition 4.<br/>However, we wouldn't show the condition to the participant.</p>",
+        "finishPageHtml": "<p>You just finished Task 2</p>",
         "finishPageNextUrl": "http://wlux.uw.edu/rbwatson/task-start.php"
     }
 }

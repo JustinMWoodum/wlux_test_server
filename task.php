@@ -153,7 +153,7 @@ if (!$link) {
 					
 					// save the finish time in case we need it to close the task later
 					$finishTime = time();
-
+					$studySessionRecord = null;
 					// get the current or most recent task, which is the last task entry for this session
 					//  it could be finished (endTime != NULL) or not.
 					$query = 'SELECT * FROM '.$DB_TABLE_SESSION_LOG.
@@ -191,41 +191,44 @@ if (!$link) {
 					//      save all the task config records to use later
 					// -----
 					// get the number of tasks for this study
-					$query = 'SELECT * FROM '.$DB_TABLE_STUDY_CONFIG.
-						' WHERE studyId = '.$studySessionRecord['studyId'].
-							' AND conditionId = '.$studySessionRecord['conditionId'].
-						' ORDER BY taskId DESC';
-					$result = mysqli_query ($link, $query);
-					$studyConfigRecords = array();
-					if (mysqli_num_rows($result) > 0 ) {
-						$maxTask = 0;
-						while ($thisRecord = mysqli_fetch_assoc($result)) {
-							// from the first record, get the max task info
-							if (empty($maxTask)) {
-								$maxTask = $thisRecord['taskId'];
+					if (!empty($studySessionRecord)) {
+						$query = 'SELECT * FROM '.$DB_TABLE_STUDY_CONFIG.
+							' WHERE studyId = '.$studySessionRecord['studyId'].
+								' AND conditionId = '.$studySessionRecord['conditionId'].
+							' ORDER BY taskId DESC';
+						$result = mysqli_query ($link, $query);
+						$studyConfigRecords = array();
+						if (mysqli_num_rows($result) > 0 ) {
+							$maxTask = 0;
+							while ($thisRecord = mysqli_fetch_assoc($result)) {
+								// from the first record, get the max task info
+								if (empty($maxTask)) {
+									$maxTask = $thisRecord['taskId'];
+								}
+								// save all the config records
+								$studyConfigRecords[$thisRecord['taskId']] = $thisRecord;
 							}
-							// save all the config records
-							$studyConfigRecords[$thisRecord['taskId']] = $thisRecord;
-						}
-						if (count($studyConfigRecords) != $maxTask) {							
+							if (count($studyConfigRecords) != $maxTask) {							
+								$localErr = '';
+								$localErr['configRecordCount'] = count($studyConfigRecords);
+								$localErr['maxTask'] =  $maxTask;
+								$localErr['message'] = 'Task config record count mismatch. The tasks must be numbered in sequence starting with 1.';
+								$errData['taskConfig'] = $localErr;
+							}
+							// $response['debug']['studyConfig']['count'] = mysqli_num_rows($result);
+						} else {
+							// no records
 							$localErr = '';
-							$localErr['configRecordCount'] = count($studyConfigRecords);
-							$localErr['maxTask'] =  $maxTask;
-							$localErr['message'] = 'Task config record count mismatch. The tasks must be numbered in sequence starting with 1.';
-							$errData['taskConfig'] = $localErr;
+							$localErr['sqlQuery'] = $query;
+							$localErr['result'] = 'Error reading condition count record';
+							$localErr['dataRecord'] = $thisRecord;
+							$localErr['sqlError'] =  mysqli_sqlstate($link);
+							$localErr['message'] = mysqli_error($link);
+							$errData['query2data'] = $localErr;
 						}
-						// $response['debug']['studyConfig']['count'] = mysqli_num_rows($result);
 					} else {
-						// no records
-						$localErr = '';
-						$localErr['sqlQuery'] = $query;
-						$localErr['result'] = 'Error reading condition count record';
-						$localErr['dataRecord'] = $thisRecord;
-						$localErr['sqlError'] =  mysqli_sqlstate($link);
-						$localErr['message'] = mysqli_error($link);
-						$errData['query2data'] = $localErr;
+						// unable to find session
 					}
-				
 					//$response['debug']['rawData']['numTasks'] = $;
 					//$response['debug']['rawData']['currentTask'] = $currentTask;
 					
@@ -347,8 +350,8 @@ if (!$link) {
 						// record not found
 						$localErr = '';
 						$localErr['message'] = 'Config or session log record not found';
-						$localErr['configRecord'] = $studyConfigRecords;
-						$localErr['sessionRecord'] = $studySessionRecord;
+						$localErr['configRecord'] = (!empty($studyConfigRecords)) ? $studyConfigRecords : null ;
+						$localErr['sessionRecord'] = (!empty($studySessionRecord)) ? $studySessionRecord : null ;
 						$errData['configOrLog'] = $localErr;
 					}
 					
