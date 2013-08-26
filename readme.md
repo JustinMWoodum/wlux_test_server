@@ -6,7 +6,7 @@ The code running on http://staff.washington.edu/rbwatson is now out of date and 
 
 The wlux_test_server code runs on http://wlux.uw.edu/rbwatson and is used to test server-side code while we're experimenting with WebLabUX utilities and "plumbing." I'll make sure that what is in the master repo is also on the server.
 
-To run the demo, go to http://wlux.uw.edu/rbwatson/start.php 
+To run the demo, go to http://wlux.uw.edu/rbwatson/start.php?wlux_study=1234 
 
 Documentation of the service is in the [documentation](/documentation/_top.md) folder.
 
