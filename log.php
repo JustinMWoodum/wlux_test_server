@@ -57,8 +57,8 @@ if (!$link) {
 			// make query string from the data structure 
 			
 			// add server-generated fields to insert query
-			$dbColList = 'recordSeq, serverTimestamp';
-			$dbValList = 'NULL, CURRENT_TIMESTAMP';	
+			$dbColList = 'recordSeq, serverTimestamp, recordType';
+			$dbValList = 'NULL, CURRENT_TIMESTAMP, \''.$logType.'\'';	
 			
 			// add the client-provided fields	
 			foreach ($logData as $dbCol => $dbVal) {
