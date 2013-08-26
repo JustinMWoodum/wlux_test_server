@@ -16,8 +16,116 @@ If the taskId is 0 or not specified, the interaction log records for all tasks a
 
 #### Response buffer
 
-**TODO:** Add sample buffer
+This is the URL to request the interaction log for all tasks in a session.
 
+```
+<hostpath>/log.php?sessionId=1377486566
+```
+
+Which returns this response buffer.
+
+```javascript
+{
+    "data": {
+        "1": [
+            {
+                "serverTimestamp": "2013-08-25 20:10:01",
+                "clientTimestamp": "1377486595595",
+                "recordType": "open",
+                "sessionId": "1377486566",
+                "taskId": "1",
+                "conditionId": "1",
+                "fromUrl": "http://students.washington.edu/rbwatson/hearts.html",
+                "toUrl": null,
+                "linkClass": null,
+                "linkId": null,
+                "linkTag": null
+            },
+            {
+                "serverTimestamp": "2013-08-25 20:10:03",
+                "clientTimestamp": "1377486597654",
+                "recordType": "transition",
+                "sessionId": "1377486566",
+                "taskId": "1",
+                "conditionId": "1",
+                "fromUrl": "http://students.washington.edu/rbwatson/hearts.html",
+                "toUrl": "http://students.washington.edu/rbwatson/hearts.html#l1",
+                "linkClass": null,
+                "linkId": null,
+                "linkTag": null
+            }
+        ],
+        "2": [
+            {
+                "serverTimestamp": "2013-08-25 20:10:09",
+                "clientTimestamp": "1377486603871",
+                "recordType": "open",
+                "sessionId": "1377486566",
+                "taskId": "2",
+                "conditionId": "1",
+                "fromUrl": "http://students.washington.edu/rbwatson/spades.html",
+                "toUrl": null,
+                "linkClass": null,
+                "linkId": null,
+                "linkTag": null
+            },
+            {
+                "serverTimestamp": "2013-08-25 20:10:10",
+                "clientTimestamp": "1377486604881",
+                "recordType": "transition",
+                "sessionId": "1377486566",
+                "taskId": "2",
+                "conditionId": "1",
+                "fromUrl": "http://students.washington.edu/rbwatson/spades.html",
+                "toUrl": "http://students.washington.edu/rbwatson/spades.html#la",
+                "linkClass": "menulink",
+                "linkId": "menu1a",
+                "linkTag": null
+            }
+        ]
+    }
+}
+```
+This is the URL to request the interaction log for a specific task in a session.
+
+```
+<hostpath>/log.php?sessionId=1377486566&taskId=2
+```
+
+Which returns this response buffer.
+
+```javascript
+{
+    "data": [
+        {
+            "serverTimestamp": "2013-08-25 20:10:09",
+            "clientTimestamp": "1377486603871",
+            "recordType": "open",
+            "sessionId": "1377486566",
+            "taskId": "2",
+            "conditionId": "1",
+            "fromUrl": "http://students.washington.edu/rbwatson/spades.html",
+            "toUrl": null,
+            "linkClass": null,
+            "linkId": null,
+            "linkTag": null
+        },
+        {
+            "serverTimestamp": "2013-08-25 20:10:10",
+            "clientTimestamp": "1377486604881",
+            "recordType": "transition",
+            "sessionId": "1377486566",
+            "taskId": "2",
+            "conditionId": "1",
+            "fromUrl": "http://students.washington.edu/rbwatson/spades.html",
+            "toUrl": "http://students.washington.edu/rbwatson/spades.html#la",
+            "linkClass": "menulink",
+            "linkId": "menu1a",
+            "linkTag": null
+        }
+    ]
+}
+```
 ## POST
 
 The POST cammands record transaction events in the interaction log.
