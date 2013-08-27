@@ -10,4 +10,5 @@
 	$DB_TABLE_SESSION_CONFIG = 'session_config';
 	$DB_TABLE_STUDY_CONFIG = 'study_config';
 	$DB_TABLE_SESSION_LOG = 'session_log';
+	$DB_TABLE_GRATUITY_LOG = 'gratuity_log';
 ?>
