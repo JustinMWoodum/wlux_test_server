@@ -7,6 +7,7 @@ The web service interface supports these end points and methods
 * [session](session.md) - functions that have to do with study sessions
 * [task](task.md) - functions that have to do with tasks in study sessions
 * [log](log.md) - functions that have to do with reading and writing interaction logs
+* [gratuity](gratuity.md) - functions that record and retrieve gratuity information separate from participant data
 
 ## Normal use case of APIs in a typical study
 

@@ -45,8 +45,8 @@ if (!$link) {
 				// read conifguration for this study and condition
 				$query = 'SELECT * FROM '.$DB_TABLE_GRATUITY_LOG.' WHERE studyId = '.$studyId;
 				$result = mysqli_query ($link, $query);
+				$idx = 0;
 				if (mysqli_num_rows($result)  > 0) {
-					$idx = 0;
 					while ($thisRecord = mysqli_fetch_assoc($result))  {
 						// remove the recordSeq field
 						unset($thisRecord['recordSeq']);
@@ -64,7 +64,6 @@ if (!$link) {
 					$localErr = '';
 					$localErr['sqlQuery'] = $query;
 					$localErr['result'] = 'No gratuity records found';
-					$localErr['dataRecord'] = $thisRecord;
 					$localErr['sqlError'] =  mysqli_sqlstate($link);
 					$localErr['message'] = mysqli_error($link);
 					$errData['queryData'] = $localErr;

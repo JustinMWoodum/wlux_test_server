@@ -1,5 +1,5 @@
 # study
-======
+-----
 
 ## GET
 ### config

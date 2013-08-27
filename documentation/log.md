@@ -1,5 +1,6 @@
 # log
-=====
+-----
+
 ## GET
 
 Gets a collection of interaction log records.
