@@ -175,15 +175,11 @@ var gratuityBuffer = { "gratuity": {
 var finishResult = $j.post ('<hostname>/session.php', gratuityBuffer, "json");
 
 ```
-With the following request buffer
-
-```javascript
-
-```
 
 The study is closed by calling the study method with the finish command.
 
 ```javascript
 var finishResult = $j.post ('<hostname>/session.php', {"finish": {"sessionId" : sessionID}},"json");
 ```
-This method could be called from the task-start page, if no further instructions are necessary. It could be called from a separate study-end page, if more instructions were necessary, such as the link to register for a gratuity.
+This method could be called from the task-start page when the start command returns an error, if no further instructions are necessary. 
+The study session could also be closed from a separate study-end page, if more instructions were necessary, such as the link to register for a gratuity.
