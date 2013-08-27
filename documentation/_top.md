@@ -142,7 +142,7 @@ The HTML in ```finishPageHTML``` is displayed to the participant and the **next*
 
 #### Finishing the study
 
-When the task method is called with the start command and there are no more tasks to perform, the method returns an error.
+When the task method is called with the start command and there are no more tasks to perform, it returns an error.
 
 ```javascript
 {
@@ -157,7 +157,31 @@ When the task method is called with the start command and there are no more task
 }
 ```
 
-When the task-start page receives this response. This response indicates that the study method must be called with the finish command.
+When the task-start page receives this response, it indicates the study tasks have been completed.
+
+If a gratuity is offered, the participant's information can be collected from the web page and saved by calling the gratuity method, as in this example.
+
+```javascript
+// the email and comments would probably be collected from an HTML <form>.
+//  while the studyId would come from a query parameter or web-service call.
+//
+var gratuityBuffer = { "gratuity": {
+                                "studyId": 1234,
+                                "email": "you@me.com",
+                                "comments": "I hope this really works!!!!"
+                            }
+                        };
+
+var finishResult = $j.post ('<hostname>/session.php', gratuityBuffer, "json");
+
+```
+With the following request buffer
+
+```javascript
+
+```
+
+The study is closed by calling the study method with the finish command.
 
 ```javascript
 var finishResult = $j.post ('<hostname>/session.php', {"finish": {"sessionId" : sessionID}},"json");

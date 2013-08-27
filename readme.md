@@ -1,6 +1,7 @@
 ##Server status
-The production server has moved to http://wlux.uw.edu/rbwatson as of 7/21/2013. 
-The current code on http://wlux.uw.edu/rbwatson is current and in sync with the GitHub repo as of 8/24/2013.
+
+The current code on http://wlux.uw.edu/rbwatson is current and in sync with the GitHub repo as of 8/26/2013.
+The production server moved to http://wlux.uw.edu/rbwatson as of 7/21/2013. 
 
 The code running on http://staff.washington.edu/rbwatson is now out of date and will be removed in the near future.
 
@@ -11,6 +12,8 @@ To run the demo, go to http://wlux.uw.edu/rbwatson/start.php?wlux_study=1234
 Documentation of the service is in the [documentation](/documentation/_top.md) folder.
 
 ##Release notes
+*26 Aug, 2013* - Added the gratuity interface to enable recording gratuity information without connecting it to a participant session.
+
 *24 Aug, 2013* - Finished porting the test site to use the web-service interface, the MySQL database, and support multi-task studies. However, it's still rather brittle so please let me know if you find something that breaks.
 
 *21 July, 2013* - Moved code to WLUX server. Started move of config functions to DB. Adopting a more consistent web-server interface for the web methods: All functions should return a json object that includes a _data_ object for sucessful calls or an _error_ object with some explanation, if not.
