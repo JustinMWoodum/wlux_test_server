@@ -86,13 +86,17 @@
 </head>
 
 <body onload="getTask()">
+<div id="pageContent" style="margin-left:auto; margin-right:auto; width:800px;">
 <h1 id="pageHeading">Task x end</h1>
 <div id="taskInstructions">
 <p>These are the instructions for task x. Press <strong>Continue</strong> to begin.</p>
 </div>
+<div id="continueFormDiv">
 <form id="continueForm" name="form1" method="POST" action="task-start.php">
     <input id="sessionField" type="hidden" name="wlux_session" value="<?php echo $sessionId; ?>" />
     <input id="continueBtn" type="submit" value="Continue" disabled />
 </form>
+</div>
+</div>
 </body>
 </html>

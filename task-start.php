@@ -36,7 +36,7 @@
 		<script type="text/javascript">
 			
 			$j = jQuery.noConflict();
-			
+			var sessionInfo = null;
 			var host = window.location.host;
 			var LOCAL = (host.indexOf("localhost") != -1) ||
 						(host.indexOf("127.0.0.1") != -1);
@@ -57,17 +57,23 @@
 					
 					postResult.done (function (response) {
 							if (response.data !== undefined) {
+								sessionInfo = response.data;
 								// alert("Going to: " + nextPage);
-								$j("#pageHeading").text("Task "+ response.data.taskId);							
+								$j("#pageHeading").text("Task "+ sessionInfo.taskId);							
 								$j("#taskInstructions").html("<p>SessionId: "+ 
-									response.data.sessionId + "<br/>StartTime: " + 
-									response.data.startTime + "</p><h2>Task Instructions:</h2>" +
-									response.data.startPageHtml);
-								$j("#sessionField").attr("value", response.data.sessionId.toString());
+									sessionInfo.sessionId + "<br/>StartTime: " + 
+									sessionInfo.startTime + "</p><h2>Task Instructions:</h2>" +
+									sessionInfo.startPageHtml);
+								$j("#sessionField").attr("value", sessionInfo.sessionId.toString());
 								// $j("#taskField").attr("value", response.data.taskId.toString());
-								if (response.data.startPageNextUrl.length > 0) {
-									$j("#continueForm").attr("action", response.data.startPageNextUrl);
-									$j("#continueForm").attr("method", "GET");
+								if (sessionInfo.startPageNextUrl.length > 0) {
+									if ("external" == sessionInfo.taskType) {
+										$j("#continueForm").attr("action", sessionInfo.startPageNextUrl);
+										$j("#continueForm").attr("method", "GET");
+									} else if ("single" == sessionInfo.taskType) {
+										$j("#continueForm").attr("action", sessionInfo.finishPageNextUrl);
+										$j("#continueForm").attr("method", "POST");
+									}
 									$j("#continueBtn").attr("disabled",false);
 								}
 							} else {
@@ -88,13 +94,17 @@
 </head>
 
 <body onload="getTask()">
+<div id="pageContent" style="margin-left:auto; margin-right:auto; width:800px;">
 <h1 id="pageHeading">Task x begin</h1>
 <div id="taskInstructions">
 <p>These are the instructions for task 1. Press <strong>Continue</strong> to begin.</p>
 </div>
+<div id="continueFormDiv">
 <form id="continueForm" name="form1" method="POST" action="task-finish.php">
     <input id="sessionField" type="hidden" name="wlux_session" value="<?php echo $sessionId ?>" />
     <input id="continueBtn" type="submit" value="Continue" disabled />
 </form>
+</div>
+</div>
 </body>
 </html>
