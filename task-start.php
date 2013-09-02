@@ -66,16 +66,18 @@
 									sessionInfo.startPageHtml);
 								$j("#sessionField").attr("value", sessionInfo.sessionId.toString());
 								// $j("#taskField").attr("value", response.data.taskId.toString());
-								if (sessionInfo.startPageNextUrl.length > 0) {
-									if ("external" == sessionInfo.taskType) {
+								if ("external" == sessionInfo.taskType) {
+									if (sessionInfo.startPageNextUrl.length > 0) {
 										$j("#continueForm").attr("action", sessionInfo.startPageNextUrl);
 										$j("#continueForm").attr("method", "GET");
-									} else if ("single" == sessionInfo.taskType) {
+									}
+								} else if ("single" == sessionInfo.taskType) {
+									if (sessionInfo.finishPageNextUrl.length > 0) {
 										$j("#continueForm").attr("action", sessionInfo.finishPageNextUrl);
 										$j("#continueForm").attr("method", "POST");
 									}
-									$j("#continueBtn").attr("disabled",false);
 								}
+								$j("#continueBtn").attr("disabled",false);
 							} else {
 								if (response.error.lastTask !== undefined) {
 									//display last task message

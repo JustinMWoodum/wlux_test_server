@@ -60,6 +60,8 @@ function listener(event){
 	  d.style.display = "none";
   } else if ("surveyComplete" == event.data) {
 	  // hide the continue button
+	  var i = document.getElementById("surveyFrame");
+	  i.height = "400";
 	  var d = document.getElementById("continueFormDiv");
 	  d.style.display = "block";
   } else {
@@ -70,7 +72,7 @@ function listener(event){
 <p>Please answer the questions below and then press continue.</p>
 <div id="surveyDiv" style="margin-left:auto; margin-right:auto; width:700px;"> </div>
 <script type="text/javascript">
-	document.getElementById("surveyDiv").innerHTML = "<iframe id=\"surveyFrame\" src=\"http://www.surveygizmo.com/s3/1350906/pretest?studyid=" + sessionInfo.studyId + "&conditionid=" + sessionInfo.conditionId + "&sessionid=" + sessionInfo.sessionId + "\" frameborder=\"0\" width=\"700\" height=\"400\" ></iframe>";	
+	document.getElementById("surveyDiv").innerHTML = "<iframe id=\"surveyFrame\" src=\"http://www.surveygizmo.com/s3/1350906/pretest?studyid=" + sessionInfo.studyId + "&conditionid=" + sessionInfo.conditionId + "&sessionid=" + sessionInfo.sessionId + "\" frameborder=\"0\" width=\"700\" height=\"2400\" ></iframe>";	
 	if (window.addEventListener){
 	  addEventListener("message", listener, false);
 	} else {

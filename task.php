@@ -335,7 +335,9 @@ if (!$link) {
 										// finish start response buffer
 										$response['data']['startPageHtml'] = $studyTaskConfig['startPageHtml'];
 										$response['data']['startPageNextUrl'] = $studyTaskConfig['startPageNextUrl'];
-									} 					
+										$response['data']['finishPageNextUrl'] = $studyTaskConfig['finishPageNextUrl'];
+										$response['data']['taskType'] = $studyTaskConfig['taskType'];
+ 									} 					
 								}
 							} else {
 								$localErr = '';
