@@ -49,3 +49,33 @@ Returns the following response that describes the cofiguration condition 4 for t
     }
 }
 ```
+
+## Study config data object
+The study config data object passes data from the WebLabUX server to the site/page being tested 
+so the WLUX_Instrumentation.js file can configure the page layout for the study session in progress. 
+The data is passed as a jsonp object and currently contains these fields. The nature of this design, however,
+is to allow this object to be updated as necessary so, confirm these fields with the actual payload.
+
+| Data field | Description |
+|--------------|------------------------------------------------------------------| 
+| *studyId* | the study for which this session is being run |
+| *sessionId* | the current test session  |
+| *taskId* | the current task |
+| *conditionId* | the condition ID of the current session -- used by logger calls |
+| *conditionCssUrl* | The URL of the CSS to use for the current session -- This is usually a .css file on the WebLabUX server that is associated with the study. (was: *cssURL*) |  
+| *taskBarCssUrl* | The URL of the CSS to use for the taskBar -- This is usually configured so the task bar affordances don't interfere with pages on the study site. (was: *taskBarCSS*) |
+| *startUrl* | The first page of an external task. **Possibly to be superceded by *startPageNextUrl*. **|
+| *returnUrl* | the URL to the return page in WebLabUX. -- This is typically the post-study questionnaire, but could be configured to point to the next task in a multi-task study. (was: *returnURL*) |
+| *buttonText* | the text to display on the task button. -- Usually something like "End Task" or "End study." |
+| *tabShowText* | Text to display in the show/hide task button when the task bar is hidden. |
+| *tabHideText* | Text to display in the show/hide task button when the taks bar is visible. |
+| *taskText* | The unformatted text to display in the task bar. |
+| *taskHtml* | Formatted HTML to display in the task bar. If both this field and the *taskText* are defined, only this field will be used. (was: *taskHTML*) |
+| *startPageHtml* | HTML text that is embedded into the task-start page when the page is opened. |
+| *finishPageHtml* | HTML text that is embedded into the task-finish page when the page is opened. |
+| *startPageNextUrl* | The URL of the page to open after the task-start page. |
+| *finishPageNextUrl* | The URL of the page to open after the task-finish page. |
+| *measuredTask* | Whether this task should be included in task-time computations. | 
+| *taskType* | Enum that describes the nature of the task: **external** - task is performed on an external site; **single** - task consists of only the task-start page and the instructions it contains (usually a survey). The task-start page ignores the *finishPageHtml* and the *startPageNextUrl* fields when showing a single-page task. |
+
+Any other fields that might appear in the configuration data object should not be used as they might disappear without notice.

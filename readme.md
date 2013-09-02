@@ -1,22 +1,25 @@
 ##Server status
 
-The current code on http://wlux.uw.edu/rbwatson is current and in sync with the GitHub repo as of 8/26/2013.
-The production server moved to http://wlux.uw.edu/rbwatson as of 7/21/2013. 
+The current code on http://wlux.uw.edu/rbwatson is current and in sync with the GitHub repo as of 9/2/2013.
 
-The code running on http://staff.washington.edu/rbwatson is now out of date and will be removed in the near future.
+The production server moved to http://wlux.uw.edu/rbwatson on 7/21/2013. The code running on http://staff.washington.edu/rbwatson is now out of date and will be removed in the near future.
 
 The wlux_test_server code runs on http://wlux.uw.edu/rbwatson and is used to test server-side code while we're experimenting with WebLabUX utilities and "plumbing." I'll make sure that what is in the master repo is also on the server.
 
-To run the demo, go to http://wlux.uw.edu/rbwatson/start.php?wlux_study=1234 
+There are currently two demos that should always be available:
+* Demo of 3-task study of our test site: http://wlux.uw.edu/rbwatson/start.php?wlux_study=1234 
+* Demo of 1-task study with a 3rd-party study embedded in the task page: http://wlux.uw.edu/rbwatson/start.php?wlux_study=2525
 
-Documentation of the service is in the [documentation](/documentation/_top.md) folder.
+Documentation of the service is available in the [documentation](/documentation/_top.md) folder.
 
 ##Release notes
-*26 Aug, 2013* - Added the gratuity interface to enable recording gratuity information without connecting it to a participant session.
+* *1 Sep, 2013* - added support for 3rd-party surveys.
 
-*24 Aug, 2013* - Finished porting the test site to use the web-service interface, the MySQL database, and support multi-task studies. However, it's still rather brittle so please let me know if you find something that breaks.
+* *26 Aug, 2013* - Added the gratuity interface to enable recording gratuity information without connecting it to a participant session.
 
-*21 July, 2013* - Moved code to WLUX server. Started move of config functions to DB. Adopting a more consistent web-server interface for the web methods: All functions should return a json object that includes a _data_ object for sucessful calls or an _error_ object with some explanation, if not.
+* *24 Aug, 2013* - Finished porting the test site to use the web-service interface, the MySQL database, and support multi-task studies. However, it's still rather brittle so please let me know if you find something that breaks.
+
+* *21 July, 2013* - Moved code to WLUX server. Started move of config functions to DB. Adopting a more consistent web-server interface for the web methods: All functions should return a json object that includes a _data_ object for sucessful calls or an _error_ object with some explanation, if not.
 
 **THIS BUILD IS NOT READY FOR RELEASE -- IT IS FOR TESTING/DEMO ONLY **
 When ready for production, the javascript needs to be compiled / minified so that it
@@ -30,31 +33,3 @@ only include a single script, `wlux_instrumentation.min.js`.
 
 To avoid having to copy/paste or memorize this command, there are two scripts `compile.sh` and
 `compile.bat` which will run the minification command on linux and windows, respectively.
-
-## Study config data object
-The study config data object passes data from the WebLabUX server to the site/page being tested 
-so the WLUX_Instrumentation.js file can configure the page layout for the study session in progress. 
-The data is passed as a jsonp object and currently contains these fields. The nature of this design, however,
-is to allow this object to be updated as necessary so, confirm these fields with the actual payload.
-
-| Data field | Description |
-|--------------|------------------------------------------------------------------| 
-| *studyId* | the study for which this session is being run |
-| *sessionId* | the current test session  |
-| *taskId* | the current task |
-| *conditionId* | the condition ID of the current session -- used by logger calls |
-| *conditionCssUrl* | The URL of the CSS to use for the current session -- This is usually a .css file on the WebLabUX server that is associated with the study. (was: *cssURL*) |  
-| *taskBarCssUrl* | The URL of the CSS to use for the taskBar -- This is usually configured so the task bar affordances don't interfere with pages on the study site. (was: *taskBarCSS*) |
-| *buttonText* | the text to display on the task button. -- Usually something like "End Task" or "End study." |
-| *returnUrl* | the URL to the return page in WebLabUX. -- This is typically the post-study questionnaire, but could be configured to point to the next task in a multi-task study. (was: *returnURL*) |
-| *taskText* | The unformatted text to display in the task bar. |
-| *taskHtml* | Formatted HTML to display in the task bar. If both this field and the *taskText* are defined, only this field will be used. (was: *taskHTML*) |
-| *tabShowText* | Text to display in the show/hide task button when the task bar is hidden. |
-| *tabHideText* | Text to display in the show/hide task button when the taks bar is visible. |
-
-Any other fields that might appear in the configuration data object should not be used as they might disappear without notice.
-
-### Styles used by the taskBarCSS file
-The taskBarCSS file referenced in the study config data object uses the styles shown here to configure the task bar and  task/study end button.
-
-![Task bar .css styles](./TaskBarCSS.png)
