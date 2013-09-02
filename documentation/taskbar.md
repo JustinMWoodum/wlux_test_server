@@ -6,4 +6,4 @@ The task bar is an optional window that can be displayed on the website pages be
 ## Styles used by the taskBarCSS file
 The taskBarCSS file referenced in the study config data object uses the styles shown here to configure the task bar and  task/study end button.
 
-![Task bar .css styles](./TaskBarCSS.png)
+![Task bar .css styles](../TaskBarCSS.png)
