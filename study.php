@@ -3,7 +3,6 @@ require 'config_files.php';
 require 'study_get.php';
 require 'study_post.php';
 
-$DB_SERVER = 'localhost';
 $response = '';
 
 $link = mysqli_connect($DB_SERVER, $DB_USER, $DB_PASS, $DB_DATABASE_NAME);
@@ -15,10 +14,26 @@ if (!$link) {
 	$errData['message'] = 'Can\'t connect to server: '.$DB_SERVER.' as: '.$DB_USER;
 	$response['error'] = $errData;
 } else {
+	// get the request data
+	if (!empty($HTTP_RAW_POST_DATA)) {
+		$postData = json_decode($HTTP_RAW_POST_DATA,true);
+	}
+	
+	// if the data is not in the raw post data, try the post form
+	if (empty($postData)) {
+		$postData = $_POST;
+	}
+	
+	// if the data is not in the the post form, try the query string		
+	if (empty($postData)) {
+		$postData = $_GET;
+	} 
+	
+
 	if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-		$response = _study_get($link);
+		$response = _study_get($link, $postData);
 	} else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-		$response = _study_post($link);
+		$response = _study_post($link, $postData);
 	} else {
 		// method not supported
 		$errData['message'] = 'HTTP method not recognized. Method must be \'GET\'';

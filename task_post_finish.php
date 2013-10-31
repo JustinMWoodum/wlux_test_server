@@ -83,7 +83,7 @@ function _task_post_finish ($link, $logData) {
 			$query = 'UPDATE '.$DB_TABLE_SESSION_LOG.
 					 ' SET endTime = "'.$finishTimeText.
 					 '" WHERE sessionId = '.$sessionId.
-					 ' AND endTime = NULL '.
+					 ' AND endTime IS NULL '.
 					 ' AND taskId = '.$taskId;
 			$result = mysqli_query ($link, $query);
 			// $response['debug']['query'] = $query;
@@ -94,7 +94,7 @@ function _task_post_finish ($link, $logData) {
 				$rData['finishTime'] = $finishTimeText;
 				$rData['finishPageHtml'] = $thisTaskRecord['finishPageHtml'];
 				$rData['finishPageNextUrl'] = $thisTaskRecord['finishPageNextUrl'];
-				$response['data'] = $rData;			
+				$response['data'] = $rData;		
 			} else {
 				$localErr = '';
 				$localErr['sqlQuery'] = $query;

@@ -2,6 +2,7 @@
 	// Contains paths to files and folders shared by the 
 	//  php scripts on the server.	
 	// database interfaces
+	$DB_SERVER = 'localhost';
 	$DB_USER = 'db_test';
 	$DB_PASS = 'WeCantDecide2';
 	$DB_DATABASE_NAME = 'db_test';

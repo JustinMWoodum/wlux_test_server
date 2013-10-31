@@ -1,5 +1,5 @@
 <?php
-	include 'config_files.php';
+	require 'config_files.php';
     $file = $sessionLogFolder. "session" . $_GET["wlux_session"] . ".txt";
 ?>
 <html>

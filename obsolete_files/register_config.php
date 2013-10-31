@@ -1,5 +1,5 @@
 <?php
-	include 'config_files.php';
+	require 'config_files.php';
 	/*
 		This php file checks if the necessary parameters
 		are being passed and if every parameter is being

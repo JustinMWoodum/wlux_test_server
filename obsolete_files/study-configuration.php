@@ -1,6 +1,6 @@
 <?php 
 //This file submits information to webservice to generate a study page
-include 'config_files.php';
+require 'config_files.php';
 error_reporting(E_STRICT);
 ?>
 	<html>

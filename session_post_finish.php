@@ -1,7 +1,6 @@
 <?php
-
 function _session_post_finish ($link, $logData) {
-require 'config_files.php';				
+	require 'config_files.php';				
 	// finish the session specified in the request
 	$finishTime = time();
 	$finishTimeText = date('Y-m-d H:i:s', $finishTime);

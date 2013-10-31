@@ -3,23 +3,7 @@ require 'config_files.php';
 require 'session_get.php';
 require 'session_post.php';
 
-$DB_SERVER = 'localhost';
 $response = '';
-
-// get the request data
-if (!empty($HTTP_RAW_POST_DATA)) {
-	$postData = json_decode($HTTP_RAW_POST_DATA,true);
-}
-
-// if the data is not in the raw post data, try the post form
-if (empty($postData)) {
-	$postData = $_POST;
-}
-
-// if the data is not in the the post form, try the query string		
-if (empty($postData)) {
-	$postData = $_GET;
-} 
 
 $link = mysqli_connect($DB_SERVER, $DB_USER, $DB_PASS, $DB_DATABASE_NAME);
 if (!$link) {
@@ -29,6 +13,21 @@ if (!$link) {
 	// this works on PHP > 4.3 (or so)
 	$errData['message'] = 'Can\'t connect to server: '.$DB_SERVER.' as: '.$DB_USER;
 } else {
+	// get the request data
+	if (!empty($HTTP_RAW_POST_DATA)) {
+		$postData = json_decode($HTTP_RAW_POST_DATA,true);
+	}
+	
+	// if the data is not in the raw post data, try the post form
+	if (empty($postData)) {
+		$postData = $_POST;
+	}
+	
+	// if the data is not in the the post form, try the query string		
+	if (empty($postData)) {
+		$postData = $_GET;
+	} 
+
 	// connected to database, check for a get request
 	if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 		$response = _session_get($link, $postData);

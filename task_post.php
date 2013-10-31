@@ -4,9 +4,6 @@ require 'task_post_finish.php';
 
 function _task_post ($link, $postData) {
     // $respDbg['globals'] = $GLOBALS;
-	$respDbg['argData'] = $postData;
-	$response['debug'] = $respDbg;	
-
 	$action = 'start';
 	if (!empty($postData[$action])) {
 		$response = _task_post_start ($link, $postData[$action]);

@@ -9,7 +9,7 @@ Retrieves an existing study condiguration
 
 * **`config[studyId]`** numeric study ID (required)
 
-*  **`config[taskId]`** numeric task ID (optional). If absent, all tasks are returned.
+* **`config[taskId]`** numeric task ID (optional). If absent, all tasks are returned.
 
 * **`config[conditionId]`** numeric condition ID (optional). If absent, all conditions are returned.
  
@@ -79,3 +79,39 @@ is to allow this object to be updated as necessary so, confirm these fields with
 | *taskType* | Enum that describes the nature of the task: **external** - task is performed on an external site; **single** - task consists of only the task-start page and the instructions it contains (usually a survey). The task-start page ignores the *finishPageHtml* and the *startPageNextUrl* fields when showing a single-page task. |
 
 Any other fields that might appear in the configuration data object should not be used as they might disappear without notice.
+
+### allIds
+Retrieves a list of study configuration IDs.
+
+#### Query String parameters
+
+* **`allIds=true`** command
+
+#### Remarks
+
+None
+
+#### Example
+```
+<hostpath>/study.php?allIds=true
+```
+Returns the following response that lists the IDs of the study configurations in the database.
+
+```javascript
+{
+    "data": {
+        "count": 4,
+        "studyIds": [
+            "1234",
+            "2525",
+            "1999",
+            "2001"
+        ]
+    }
+}
+```
+
+| Data field | Description |
+|--------------|------------------------------------------------------------------| 
+| count | The number of study IDs returned |
+| studyIds | an array of all study IDs in the configuration database |

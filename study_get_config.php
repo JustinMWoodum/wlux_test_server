@@ -1,7 +1,6 @@
 <?php
-
 function _study_get_config ($link, $logData) {			
-	include 'config_files.php';
+	require 'config_files.php';
 	// return the specified configuration
 	
 	// check the parameters

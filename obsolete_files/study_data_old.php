@@ -1,5 +1,5 @@
 <?php
-	include 'config_files.php';
+	require 'config_files.php';
     // set the returnURL dynamically depending on whether we're on the
     // development or produciton environment.
     // NOTE: this assumes that the site and server directories are in the root

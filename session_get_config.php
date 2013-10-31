@@ -1,6 +1,6 @@
 <?php
-function _task_get_config ($link, $logData) {
-	require 'config_files.php';
+function _session_get_config ($link, $logData) {
+require 'config_files.php';
 	// check the parameters
 	$thisParam = 'sessionId';
 	if (array_key_exists($thisParam, $logData)) {
@@ -12,7 +12,7 @@ function _task_get_config ($link, $logData) {
 	} else {
 		$badParam[$thisParam] =  "Missing";
 	}
-	
+
 	$thisParam = 'taskId';
 	if (array_key_exists($thisParam, $logData)) {
 		if (!is_numeric($logData[$thisParam])) {
@@ -27,8 +27,7 @@ function _task_get_config ($link, $logData) {
 		$taskId = 0;
 	}
 	
-	if (empty($badParam)) {
-		// no parameter errors, so get task configuration record
+	if(empty($badParam)) {
 		if ($taskId == -1) {
 			// -1 ==> get the latest task config for this session
 			$query = 'SELECT * FROM '.$DB_TABLE_SESSION_CONFIG.
@@ -43,7 +42,7 @@ function _task_get_config ($link, $logData) {
 			// task == 0 is not supported yet
 			// bad parameter
 			$localErr = '';
-			$localErr['message'] = 'Bad parameter in config request.';
+			$localErr['message'] = 'Bad parameter in finish request.';
 			$localErr['paramError']['taskId'] = "Cannot be 0";
 			$localErr['request'] = $logData;
 			// $errData['globals'] = $GLOBALS;
@@ -51,7 +50,7 @@ function _task_get_config ($link, $logData) {
 		}
 		if (!empty($query)) {
 			$result = mysqli_query ($link, $query);
-			if (mysqli_num_rows($result) == 1 ) {
+			if (mysqli_num_rows($result) == 1) {
 				if ($thisRecord = mysqli_fetch_assoc($result))  {
 					// remove the recordSeq field
 					unset($thisRecord['recordSeq']);
@@ -81,20 +80,18 @@ function _task_get_config ($link, $logData) {
 			}
 		}
 	} else {
-		//bad parameter
+		// bad parameter in request data
 		$localErr = '';
-		$localErr['message'] = 'Bad parameter in start request.';
+		$localErr['message'] = 'Bad parameter in request.';
 		$localErr['paramError'] = $badParam;
 		$localErr['request'] = $logData;
 		// $errData['globals'] = $GLOBALS;
-		$errData['validation'] = $localErr;
+		$errData['validation'] =$localErr;		
 	}
 	
 	if (!empty($errData)) {
 		$response['error'] = $errData;
 	}
-	return $response;	
+	return $response;
 }
-
-
 ?>

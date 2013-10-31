@@ -1,6 +1,6 @@
 ##Server status
 
-The current code on http://wlux.uw.edu/rbwatson is current and in sync with the GitHub repo as of 9/2/2013.
+The current code on http://wlux.uw.edu/rbwatson is current and in sync with the GitHub repo as of 10/30/2013.
 
 The production server moved to http://wlux.uw.edu/rbwatson on 7/21/2013. The code running on http://staff.washington.edu/rbwatson is now out of date and will be removed in the near future.
 
@@ -9,10 +9,14 @@ The wlux_test_server code runs on http://wlux.uw.edu/rbwatson and is used to tes
 There are currently two demos that should always be available:
 * Demo of 3-task study of our test site: http://wlux.uw.edu/rbwatson/start.php?wlux_study=1234 
 * Demo of 1-task study with a 3rd-party study embedded in the task page: http://wlux.uw.edu/rbwatson/start.php?wlux_study=2525
+* Demo of the canonical 1-task study is http://wlux.uw.edu/rbwatson/start.php?wlux_study=2001
+* Demo of the canonical 3-task study is http://wlux.uw.edu/rbwatson/start.php?wlux_study=1999
 
 Documentation of the service is available in the [documentation](/documentation/_top.md) folder.
 
 ##Release notes
+* *30 Oct, 2013* - refactored the API so that each function is in its own source file and added the _study GET allIds_ function
+
 * *1 Sep, 2013* - added support for 3rd-party surveys.
 
 * *26 Aug, 2013* - Added the gratuity interface to enable recording gratuity information without connecting it to a participant session.

@@ -1,5 +1,4 @@
 <?php
-
 function _session_post_start ($link, $logData) {
 require 'config_files.php';	
 	// start a new task and return a start response
