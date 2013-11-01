@@ -1,20 +1,38 @@
 ##Server status
 
-The current code on http://wlux.uw.edu/rbwatson is current and in sync with the GitHub repo as of 10/30/2013.
+(Happy Halloween!)
+On 10/31/13, the files have been moved around in the repo and on the production server as follows
+
+| repo folder | holds | prod server path	 |  local server path |
+| ---------- | ---------- | ---------- | ---------- |
+| www__root | Not much. Don't put files here. | http://wlux.uw.edu/rbwatson/ | http://localhost/wlux/ |
+| www_common | Files used by WebLabUX and client sites being tested. | http://wlux.uw.edu/common/ | http://localhost/wlux/common/ |
+| www_demo | The demo pages. | http://wlux.uw.edu/demo/ | http://localhost/wlux/demo/ |
+| www_data | The WebLabUX _backend_ data service files. | http://wlux.uw.edu/data/ | http://localhost/wlux/data/ |
+| build_tools | Files used to build components of this site | N/A | N/A |
+| config_and_setup | Files used to initialize the backend |  N/A | N/A |
+| docstudyt | Test files for research project. Don't use or change. |  N/A | N/A |
+| documentation | The documentation. |  N/A | N/A |
+| obsolete_files | Files we can't live with and can't live without |  N/A | N/A |
+| test_files | Diagnostic files |  N/A | N/A |
+
+The current code on http://wlux.uw.edu/demo, /data, and /common is current and in sync with the GitHub repo as of 10/31/2013.
 
 The production server moved to http://wlux.uw.edu/rbwatson on 7/21/2013. The code running on http://staff.washington.edu/rbwatson is now out of date and will be removed in the near future.
 
 The wlux_test_server code runs on http://wlux.uw.edu/rbwatson and is used to test server-side code while we're experimenting with WebLabUX utilities and "plumbing." I'll make sure that what is in the master repo is also on the server.
 
-There are currently two demos that should always be available:
-* Demo of 3-task study of our test site: http://wlux.uw.edu/rbwatson/start.php?wlux_study=1234 
-* Demo of 1-task study with a 3rd-party study embedded in the task page: http://wlux.uw.edu/rbwatson/start.php?wlux_study=2525
-* Demo of the canonical 1-task study is http://wlux.uw.edu/rbwatson/start.php?wlux_study=2001
-* Demo of the canonical 3-task study is http://wlux.uw.edu/rbwatson/start.php?wlux_study=1999
+These demos should always be available:
+* Demo of 3-task study of our test site: http://wlux.uw.edu/demo/start.php?wlux_study=1234 
+* Demo of 1-task study with a 3rd-party study embedded in the task page: http://wlux.uw.edu/demo/start.php?wlux_study=2525
+* Demo of the canonical 1-task study is http://wlux.uw.edu/demo/start.php?wlux_study=2001
+* Demo of the canonical 3-task study is http://wlux.uw.edu/demo/start.php?wlux_study=1999
 
 Documentation of the service is available in the [documentation](/documentation/_top.md) folder.
 
 ##Release notes
+* *31 Oct, 2013* - refactored folder structure and names in repo and production server
+
 * *30 Oct, 2013* - refactored the API so that each function is in its own source file and added the _study GET allIds_ function
 
 * *1 Sep, 2013* - added support for 3rd-party surveys.
