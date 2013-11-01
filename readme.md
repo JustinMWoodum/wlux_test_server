@@ -3,8 +3,7 @@
 (Happy Halloween!)
 On 10/31/13, the files have been moved around in the repo and on the production server as follows
 
-| repo folder | holds | prod server path	 |  local server path |
-| ---------- | ---------- | ---------- | ---------- |
+|| repo folder	|| holds || prod server path	 ||  local server path ||
 | www__root | Not much. Don't put files here. | http://wlux.uw.edu/rbwatson/ | http://localhost/wlux/ |
 | www_common | Files used by WebLabUX and client sites being tested. | http://wlux.uw.edu/common/ | http://localhost/wlux/common/ |
 | www_demo | The demo pages. | http://wlux.uw.edu/demo/ | http://localhost/wlux/demo/ |
