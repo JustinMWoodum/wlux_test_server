@@ -30,7 +30,7 @@
         div.container { width: 500px; margin: auto; }
         </style>
         <title>WebLabUX Study Thanks!</title>
-		<script src="jquery.js" type="text/javascript"></script>
+		<script src="../common/jquery.js" type="text/javascript"></script>
 		<script type="text/javascript">
 			
 			$j = jQuery.noConflict();
@@ -39,10 +39,10 @@
 			var LOCAL = (host.indexOf("localhost") != -1) ||
 						(host.indexOf("127.0.0.1") != -1);
 		
-			var sessionURL = "http://wlux.uw.edu/rbwatson/session.php";
+			var sessionURL = "http://wlux.uw.edu/data/session.php";
 			
 			if (LOCAL) {
-				sessionURL = "/rbwatson/session.php";
+				sessionURL = "/data/session.php";
 			}
 			
 			function finishSession () {
@@ -55,7 +55,7 @@
 					configResult.done (function (response) {
 							$j("#studyField").attr("value",response.data.studyId);
 							// logged the finish so enable the button to exit
-							$j("#showMeDiv").html("<p><a href=\"http://wlux.uw.edu/rbwatson/log.php?sessionId=" + response.data.sessionId + "\" target=\"_blank\">View the log file</a></p>");
+							$j("#showMeDiv").html("<p><a href=\"http://wlux.uw.edu/data/log.php?sessionId=" + response.data.sessionId + "\" target=\"_blank\">View the log file</a></p>");
 							$j("#continueBtn").attr("disabled",false);
 							$j("#prompt").css("display","block");
 						});			

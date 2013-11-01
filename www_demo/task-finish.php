@@ -20,7 +20,7 @@
 	if (!empty($postData['wlux_session'])) {
 		$sessionId = $postData['wlux_session'];
 	}
-
+	
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -31,62 +31,52 @@
         h2 { margin-top: 1em; }
         div.container { width: 500px; margin: auto; }
         </style>
-        <title>WebLabUX Study Task Start</title>
-		<script src="jquery.js" type="text/javascript"></script>
+        <title>WebLabUX Study Task Completion</title>
+		<script src="../common/jquery.js" type="text/javascript"></script>
 		<script type="text/javascript">
 			
 			$j = jQuery.noConflict();
-			var sessionInfo = null;
+			
 			var host = window.location.host;
 			var LOCAL = (host.indexOf("localhost") != -1) ||
 						(host.indexOf("127.0.0.1") != -1);
 		
-			var taskURL = "http://wlux.uw.edu/rbwatson/task.php";
+			var taskURL = "http://wlux.uw.edu/data/task.php";
 			
 			if (LOCAL) {
-				taskURL = "/rbwatson/task.php";
+				taskURL = "/data/task.php";
 			}
 			
 			function getTask () {
 				// get session info
-				$j.ajaxSetup({async: false}); //
+				$j.ajaxSetup({async: false}); 
 				 // if undefined, use ""
 				if (<?php echo $sessionId ?> > 0) {
 					// start the task and get the configuration info
-					var postResult = $j.post (taskURL, {"start": {"sessionId" : <?php echo $sessionId ?>}},"json");
+					var postResult = $j.post (taskURL, {"finish": {"sessionId" : <?php echo $sessionId; ?>, "taskId" : -1}},"json");
 					
 					postResult.done (function (response) {
 							if (response.data !== undefined) {
-								sessionInfo = response.data;
 								// alert("Going to: " + nextPage);
-								$j("#pageHeading").text("Task "+ sessionInfo.taskId);							
-								$j("#taskInstructions").html("<p>SessionId: "+ 
-									sessionInfo.sessionId + "<br/>StartTime: " + 
-									sessionInfo.startTime + "</p><h2>Task Instructions:</h2>" +
-									sessionInfo.startPageHtml);
-								$j("#sessionField").attr("value", sessionInfo.sessionId.toString());
+								$j("#pageHeading").text("Task "+ response.data.taskId + " completed");							
+								$j("#taskInstructions").html("<p>Finish Time: " + response.data.finishTime + 
+								"</p><h2>Task Instructions:</h2>" + response.data.finishPageHtml);
 								// $j("#taskField").attr("value", response.data.taskId.toString());
-								if ("external" == sessionInfo.taskType) {
-									if (sessionInfo.startPageNextUrl.length > 0) {
-										$j("#continueForm").attr("action", sessionInfo.startPageNextUrl);
-										$j("#continueForm").attr("method", "GET");
-									}
-								} else if ("single" == sessionInfo.taskType) {
-									if (sessionInfo.finishPageNextUrl.length > 0) {
-										$j("#continueForm").attr("action", sessionInfo.finishPageNextUrl);
-										$j("#continueForm").attr("method", "POST");
-									}
+								if (response.data.finishPageNextUrl.length > 0) {
+									$j("#continueForm").attr("action", response.data.finishPageNextUrl);
+									//$j("#continueForm").attr("method", "GET");
+									$j("#continueBtn").attr("disabled",false);
 								}
-								$j("#continueBtn").attr("disabled",false);
 							} else {
-								if (response.error.lastTask !== undefined) {
+								if (response.error !== undefined) {
 									//display last task message
 									$j("#pageHeading").text("Finished");	
-									$j("#taskInstructions").html("<p>" + response.error.lastTask + "<br/>Press <strong>Continue</strong> to finish.</p>");
+									$j("#taskInstructions").html("<p>" + response.error.message + "<br/>Press <strong>Continue</strong> to finish.</p>");
 									$j("#continueBtn").attr("disabled",false);
 									$j("#continueForm").attr("action","study-end.php");
 								}
 							} 
+							$j("#continueBtn").attr("disabled",false);
 					});
 				} else {
 					$j("#textDiv").html("<p>No session was specified</p>");
@@ -97,13 +87,13 @@
 
 <body onload="getTask()">
 <div id="pageContent" style="margin-left:auto; margin-right:auto; width:800px;">
-<h1 id="pageHeading">Task x begin</h1>
+<h1 id="pageHeading">Task x end</h1>
 <div id="taskInstructions">
-<p>These are the instructions for task 1. Press <strong>Continue</strong> to begin.</p>
+<p>These are the instructions for task x. Press <strong>Continue</strong> to begin.</p>
 </div>
 <div id="continueFormDiv">
-<form id="continueForm" name="form1" method="POST" action="task-finish.php">
-    <input id="sessionField" type="hidden" name="wlux_session" value="<?php echo $sessionId ?>" />
+<form id="continueForm" name="form1" method="POST" action="task-start.php">
+    <input id="sessionField" type="hidden" name="wlux_session" value="<?php echo $sessionId; ?>" />
     <input id="continueBtn" type="submit" value="Continue" disabled />
 </form>
 </div>

@@ -36,14 +36,14 @@ var WLUX = (function() {
     var LOCAL = (host.indexOf("localhost") != -1) ||
                 (host.indexOf("127.0.0.1") != -1);
 
-//    var loggerURL = "http://staff.washington.edu/rbwatson/logger.php";
-//    var studyDataURL = "http://staff.washington.edu/rbwatson/study_data.php";
-    var loggerURL = "http://wlux.uw.edu/rbwatson/log.php";
-    var studyDataURL = "http://wlux.uw.edu/rbwatson/session.php";
+//    var loggerURL = "http://staff.washington.edu/data/logger.php";
+//    var studyDataURL = "http://staff.washington.edu/data/study_data.php";
+    var loggerURL = "http://wlux.uw.edu/data/log.php";
+    var studyDataURL = "http://wlux.uw.edu/data/session.php";
 
     if (LOCAL) {
-        loggerURL = "/rbwatson/log.php";
-        studyDataURL = "/rbwatson/session.php";
+        loggerURL = "/data/log.php";
+        studyDataURL = "/data/session.php";
     }
 
     /***************************************************************
