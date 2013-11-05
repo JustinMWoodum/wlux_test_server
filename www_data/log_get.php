@@ -5,32 +5,49 @@ require 'config_files.php';
 	// query the database for the requested info
 	// check the parameters
 			
-	$thisParam = 'sessionId';
-	$sessionId = 0;
+	$thisParam = 'studyId';
+	$studyId = 0;
 	if (array_key_exists($thisParam, $postData)) {
-		$sessionId = trim($postData[$thisParam]);
-		if (!is_numeric($sessionId)) {
+		$studyId = trim($postData[$thisParam]);
+		if (!is_numeric($studyId)) {
 			$badParam[$thisParam] =  "Not a number";
 		}
 	} else {
 		$badParam[$thisParam] =  "Missing";
-	}		
-
-	$thisParam = 'taskId';
-	$taskId = 0;
-	if (array_key_exists($thisParam, $postData)) {
-		$taskId = trim($postData[$thisParam]);
-		if (!is_numeric($taskId)) {
-			$badParam[$thisParam] =  "Not a number";
-		}
-	} else {
-		// Task ID == 0 == All tasks in the session
+	}
+	
+	if ($badParam[$thisParam] == "Missing") {	
+		// then clear the error and try the session & task Ids.
+		unset($badParam[$thisParam]);
+		
+		$thisParam = 'sessionId';
+		$sessionId = 0;
+		if (array_key_exists($thisParam, $postData)) {
+			$sessionId = trim($postData[$thisParam]);
+			if (!is_numeric($sessionId)) {
+				$badParam[$thisParam] =  "Not a number";
+			}
+		} else {
+			$badParam[$thisParam] =  "Missing";
+		}		
+	
+		$thisParam = 'taskId';
 		$taskId = 0;
-	}				
+		if (array_key_exists($thisParam, $postData)) {
+			$taskId = trim($postData[$thisParam]);
+			if (!is_numeric($taskId)) {
+				$badParam[$thisParam] =  "Not a number";
+			}
+		} else {
+			// Task ID == 0 == All tasks in the session
+			$taskId = 0;
+		}				
+	}
 //+
 	if (empty($badParam)) {
 		// no parameter errors, so get task configuration record
 		// first get the open records
+		$response['debug']['studyId'] = $studyId;
 		$response['debug']['sessionId'] = $sessionId ;
 		$response['debug']['taskId'] = $taskId ;
 		
@@ -39,11 +56,18 @@ require 'config_files.php';
 				' WHERE taskId = '.$taskId. 
 				' AND sessionId = '.$sessionId.
 				' ORDER BY serverTimestamp ;';
-		} else {
+		} else if ($sessionId > 0) {
 			// get all tasks for this session
 			$query = 'SELECT * FROM '.$DB_TABLE_TRANSITION_LOG.
 				' WHERE sessionId = '.$sessionId.
 				' ORDER BY serverTimestamp ;';				
+		} else if ($studyId > 0) {
+			$query = 'SELECT s.studyId, s.sessionId, l.serverTimestamp, l.clientTimestamp, l.sessionId, l.taskId, l.conditionId, '.
+						'l.fromUrl, l.toUrl, l.linkClass, l.linkId, l.linkTag '.
+						'FROM session_config AS s '.
+						'JOIN log_transition AS l '.
+						'WHERE l.sessionId = s.sessionId AND s.studyId = '.$studyId.
+						' ORDER BY l.sessionId, l.taskId, serverTimestamp';
 		}
 		
 		$response['debug']['query'] = $query;
@@ -77,7 +101,7 @@ require 'config_files.php';
 	} else {
 		// bad or missing parameter
 		$localErr = '';
-		$localErr['message'] = 'Bad parameter in finish request.';
+		$localErr['message'] = 'Bad parameter in log request.';
 		$localErr['paramError'] = $badParam;
 		$localErr['request'] = $postData;
 		// $errData['globals'] = $GLOBALS;
