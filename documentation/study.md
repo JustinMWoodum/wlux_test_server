@@ -81,11 +81,11 @@ is to allow this object to be updated as necessary so, confirm these fields with
 Any other fields that might appear in the configuration data object should not be used as they might disappear without notice.
 
 ### allIds
-Retrieves a list of study configuration IDs.
+Retrieves a list of study configuration IDs or a list of the tasks and condition IDs for a specific study.
 
 #### Query String parameters
 
-* **`allIds=true`** command
+* **`allIds[studyId]=[*|studyId]`** command
 
 #### Remarks
 
@@ -93,7 +93,7 @@ None
 
 #### Example
 ```
-<hostpath>/study.php?allIds=true
+<hostpath>/study.php?allIds[studyId]=*
 ```
 Returns the following response that lists the IDs of the study configurations in the database.
 
@@ -110,8 +110,47 @@ Returns the following response that lists the IDs of the study configurations in
     }
 }
 ```
+```
+<hostpath>/study.php?allIds[studyId]=1234
+```
+Returns the following response that lists the tasks and conditions defined for study ID: 1234.
+
+```javascript
+{
+    "data": {
+        "studyId": "1234",
+        "conditionCount": 4,
+        "conditionsBalanced": true,
+        "count": 3,
+        "tasks": {
+            "1": [
+                "1",
+                "2",
+                "3",
+                "4"
+            ],
+            "2": [
+                "1",
+                "2",
+                "3",
+                "4"
+            ],
+            "3": [
+                "1",
+                "2",
+                "3",
+                "4"
+            ]
+        }
+    }
+}
+```
 
 | Data field | Description |
 |--------------|------------------------------------------------------------------| 
-| count | The number of study IDs returned |
-| studyIds | an array of all study IDs in the configuration database |
+| count | The number of study IDs or tasks returned |
+| studyIds | An array of all study IDs in the configuration database |
+| studyId | Tthe study for which a list of tasks are defined |
+| conditionCount | The number of conditions defined for each task. This value is only valid if __conditionsBalanced__ is __true__. |
+| conditionsBalanced | __true__ when all task have the same number of conditions defined; otherwise __false__. |
+| tasks | an array of the tasks defined for the study. In each task is a list of the conditionIds defined for the task. |
