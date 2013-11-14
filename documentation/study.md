@@ -1,7 +1,13 @@
 # study
 -----
+[GET](#get)
+* [config](#get_config)
+* [allIds](#get_allids)
 
+-----
+<a name="get"></a>
 ## GET
+<a name="get_config"></a>
 ### config
 Retrieves an existing study condiguration
 
@@ -80,6 +86,7 @@ is to allow this object to be updated as necessary so, confirm these fields with
 
 Any other fields that might appear in the configuration data object should not be used as they might disappear without notice.
 
+<a name="get_allids"></a>
 ### allIds
 Retrieves a list of study configuration IDs or a list of the tasks and condition IDs for a specific study.
 
