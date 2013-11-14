@@ -8,6 +8,10 @@ Gets a collection of interaction log records.
 #### Query parameters
 The query parameters identify the log records to return in the response buffer.
 
+Either:
+* ```studyId``` - the studyId for which all sessions and tasks are returned
+
+OR
 * ```sessionId``` - the sessionId of the session (required)
 * ```taskId``` - the taskId of the task (optional)
 
@@ -192,3 +196,77 @@ Sample Transition request data block:
   }
 }
 ```
+
+### allIds
+Retrieves a list of study IDs found in the current log or a list of the tasks and sessions IDs of the log records for a specific study.
+
+#### Query String parameters
+
+* **`allIds[studyId]=[*|studyId]`** command
+
+#### Remarks
+
+None
+
+#### Example
+```
+<hostpath>/log.php?allIds[studyId]=*
+```
+Returns the following response that lists the IDs of the study configurations in the database.
+
+```javascript
+{
+    "data": {
+        "count": 4,
+        "studyIds": [
+            "1234",
+            "2525",
+            "1999",
+            "2001"
+        ]
+    }
+}
+```
+```
+<hostpath>/log.php?allIds[studyId]=1234
+```
+Returns the following response that lists the sessions and tasks of study ID: 1234 with log records.
+
+```javascript
+{
+    "data": {
+        "studyId": "1234",
+        "count": 5,
+        "sessionIds": {
+            "1383605381": [
+                "1"
+            ],
+            "1383623854": [
+                "1"
+            ],
+            "1384302649": [
+                "1",
+                "2",
+                "3"
+            ],
+            "1384303365": [
+                "1",
+                "2",
+                "3"
+            ],
+            "1384304762": [
+                "1",
+                "2",
+                "3"
+            ]
+        }
+    }
+}
+```
+
+| Data field | Description |
+|--------------|------------------------------------------------------------------| 
+| count | The number of study or session IDs returned |
+| studyIds | An array of all study IDs with log records  |
+| studyId | The study for which a list of sessions are returned |
+| sessionIds | an array of the tasks for the study that have records in the log. In each session entry is an array of the tasks from that session that have records in the log. |
