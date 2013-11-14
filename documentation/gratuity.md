@@ -1,7 +1,18 @@
 # gratuity
 -----
 
+GET
+* [studyId](#get_studyid)
+
+POST
+* [gratuity](#post_gratuity) 
+
+-----
+<a name="get"></a>
 ## GET
+
+<a name="get_studyid"></a>
+### studyId
 
 Gets the data that participants entered for their gratuity.
 
@@ -35,8 +46,10 @@ Returns the following response that contains the gratuity entries submitted for 
 }
 ```
 
+<a name="post"></a>
 ## POST
 
+<a name="post_gratuity"></a>
 ### gratuity
 
 Writes a gratuity record to the database
