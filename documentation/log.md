@@ -1,6 +1,15 @@
 # log
 -----
 
+[GET](#get)
+* [allIds](#allids)
+* [studyId or sessionId](#studyid-or-sessionid)
+
+[POST](#post)
+* [open](#open)
+* [transition](#transition)
+
+-----
 ## GET
 
 Gets a collection of interaction log records.
