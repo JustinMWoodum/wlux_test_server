@@ -1,6 +1,14 @@
 # session
 -----
+[GET](#get)
+* [config](#config)
+* [log](#log)
+ 
+[POST](#post)
+* [start](#start)
 
+
+-----
 ## GET
 ### config
 Retrieves an existing study configuration
