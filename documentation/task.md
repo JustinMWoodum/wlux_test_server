@@ -1,6 +1,14 @@
 # task
 -----
+[GET](#get)
+* [config](#config)
 
+[POST](#post)
+* [start](#start)
+* [finish](#finish)
+
+
+-----
 ## GET
 ### config
 Retrieves an existing task configuration
